@@ -1,0 +1,8 @@
+= Commit guidelines
+https://www.conventionalcommits.org/en/v1.0.0-beta.3/
+
+= Changelog guidelines
+https://keepachangelog.com/en/1.0.0/
+
+= Versioning guidelines
+https://semver.org/spec/v2.0.0.html
