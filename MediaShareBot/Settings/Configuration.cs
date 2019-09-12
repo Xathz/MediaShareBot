@@ -17,6 +17,11 @@
         /// </summary>
         public string DiscordToken { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Streamlabs api token.
+        /// </summary>
+        public string StreamlabsToken { get; set; } = string.Empty;
+
     }
 
 }

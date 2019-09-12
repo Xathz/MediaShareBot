@@ -1,20 +1,19 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-//using MediaShareBot.Clients.Discord;
-//using MediaShareBot.Clients.Streamlabs;
-using MediaShareBot.Settings;
 using Humanizer.Configuration;
 using Humanizer.DateTimeHumanizeStrategy;
-using MediaShareBot.Extensions;
 using MediaShareBot.Clients.Discord;
+using MediaShareBot.Clients.Streamlabs;
+using MediaShareBot.Extensions;
+using MediaShareBot.Settings;
 
 namespace MediaShareBot {
 
     class Program {
 
         private readonly DateTime _Started = DateTime.Now;
-        private bool IsExiting = false;
+        private bool _IsExiting = false;
 
         static void Main() => new Program().StartAsync().GetAwaiter().GetResult();
 
@@ -58,10 +57,10 @@ namespace MediaShareBot {
             await Cache.LoadContentAsync();
 
             // Connect to Discord
-            //await DiscordClient.ConnectAsync();
+            await DiscordClient.ConnectAsync();
 
             // Connect to Streamlabs
-            //await StreamlabsClient.ConnectAsync();
+            await StreamlabsClient.ConnectAsync();
 
             // Block and wait
             await UserInputAsync();
@@ -71,7 +70,7 @@ namespace MediaShareBot {
             WaitForInput:
 
             string input = await Task.Run(() => Console.ReadLine());
-            if (IsExiting) { goto WaitForInput; }
+            if (_IsExiting) { goto WaitForInput; }
 
             if (input == "exit") {
                 BeginExit();
@@ -88,13 +87,15 @@ namespace MediaShareBot {
         }
 
         private async void BeginExit() {
-            IsExiting = true;
+            _IsExiting = true;
             LoggingManager.Log.Info("Exiting, this will take a few seconds...");
 
             await DiscordClient.StopAsync();
 
+            await StreamlabsClient.StopAsync();
+
             LoggingManager.Flush();
-            await Task.Delay(2000);
+            await Task.Delay(3000);
 
             Environment.Exit(0);
         }

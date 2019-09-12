@@ -34,10 +34,6 @@
     <EmbeddedResource Remove="Unused\**" />
     <None Remove="Unused\**" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Clients\Streamlabs\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.1.1" />

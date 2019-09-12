@@ -50,8 +50,13 @@ namespace MediaShareBot.Clients.Discord {
 
             await _MentionProvider.GetRequiredService<MentionCommands>().InitializeAsync();
 
-            await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
-            await _DiscordClient.StartAsync();
+            try {
+                await _DiscordClient.LoginAsync(TokenType.Bot, SettingsManager.Configuration.DiscordToken);
+                await _DiscordClient.StartAsync();
+            } catch (Exception ex) {
+                LoggingManager.Log.Fatal(ex);
+                Environment.Exit(1);
+            }
         }
 
         /// <summary>

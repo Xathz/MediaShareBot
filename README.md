@@ -1,3 +1,5 @@
+<p align="center"><img  alt="Media Share Bot" src="./MediaShareBotHeader.png"></p>
+
 # Media Share Bot
 
 ### Notes

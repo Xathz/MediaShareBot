@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using Newtonsoft.Json;
 
 namespace MediaShareBot {
@@ -91,6 +92,16 @@ namespace MediaShareBot {
                 LoggingManager.Log.Error(ex);
                 return default;
             }
+        }
+
+        /// <summary>
+        /// Parses a url for a parameters value.
+        /// </summary>
+        /// <param name="url">Url to parse</param>
+        /// <param name="parameter">Parameter to get</param>
+        public static string ParseUrlForParameter(string url, string parameter) {
+            Uri myUri = new Uri(url);
+            return HttpUtility.ParseQueryString(myUri.Query).Get(parameter);
         }
 
         /// <summary>
