@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaShareBot.Extensions {
 
-    public static class JsonDotNet {
+    public static class JsonDotNetExt {
 
         public static T FindValueByKey<T>(this JObject jObject, string key) => jObject.Descendants()
              .Where(x => x is JObject)

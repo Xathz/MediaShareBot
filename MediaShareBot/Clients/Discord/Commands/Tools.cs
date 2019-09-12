@@ -52,7 +52,7 @@ namespace MediaShareBot.Clients.Discord.Commands {
             List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1990);
 
             foreach (string chunk in chunks) {
-                await ReplyAsync($"```{chunk}```");
+                await ReplyAsync($"```{chunk.Replace("`", "'")}```");
             }
         }
 
@@ -66,13 +66,13 @@ namespace MediaShareBot.Clients.Discord.Commands {
                 builder.AppendLine(role.Name);
                 builder.AppendLine($"● {role.Id}");
                 builder.AppendLine($"● {role.CreatedAt.DateTime.ToString(Constants.DateTimeFormatShort).ToLower()} utc");
-                builder.AppendLine($"● {(role.Color.RawValue == 0 ? "#99AAB5" : role.Color.ToString())}");
+                builder.AppendLine($"● Color: {(role.Color.RawValue == 0 ? "#99aab5" : role.Color.ToString())}");
             }
 
             List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1990);
 
             foreach (string chunk in chunks) {
-                await ReplyAsync($"```{chunk}```");
+                await ReplyAsync($"```{chunk.Replace("`", "'")}```");
             }
         }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
 
-namespace MediaShareBot {
+namespace MediaShareBot.Utilities {
 
     public static class Http {
 

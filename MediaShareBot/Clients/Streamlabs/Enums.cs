@@ -6,7 +6,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
         public static EventType ParseEventType(string responseType) {
             switch (responseType.ToLowerInvariant()) {
-                // Alerts
+                // Streamlabs alerts
                 case "alertplaying": return EventType.AlertPlaying;
                 case "acceptalert": return EventType.AcceptAlert;
                 case "skipalert": return EventType.SkipAlert;
@@ -51,7 +51,7 @@ namespace MediaShareBot.Clients.Streamlabs {
         }
 
         public enum EventType {
-            // Alerts
+            // Streamlabs alerts
             AlertPlaying,
             AcceptAlert,
             SkipAlert,

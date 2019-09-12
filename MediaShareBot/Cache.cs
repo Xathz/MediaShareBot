@@ -6,6 +6,7 @@ using System.Runtime.Caching;
 using System.Threading.Tasks;
 using MediaShareBot.Extensions;
 using MediaShareBot.Properties;
+using MediaShareBot.Utilities;
 
 namespace MediaShareBot {
 

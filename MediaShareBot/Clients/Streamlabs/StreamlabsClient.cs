@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Humanizer;
+using MediaShareBot.Clients.Streamlabs.Events;
 using MediaShareBot.Extensions;
 using MediaShareBot.Settings;
+using MediaShareBot.Utilities;
 using Newtonsoft.Json.Linq;
 using SocketIOClient;
 using static MediaShareBot.Clients.Streamlabs.Enums;
@@ -142,6 +144,15 @@ namespace MediaShareBot.Clients.Streamlabs {
 
         private static void ProcessEvent(string eventText) {
             try {
+                JObject eventObject = JObject.Parse(eventText);
+                EventType eventType = ParseEventType(eventObject.Value<string>("type"));
+
+                if (eventType == EventType.Donation) {
+                    DonationEvent.Process(eventObject);
+                }
+
+
+
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
