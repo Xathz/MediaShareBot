@@ -15,6 +15,7 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
 
             string mediaId = eventObject.FindValueByParentAndKey<string>("media", "id");
             string mediaTitle = eventObject.FindValueByParentAndKey<string>("media", "title");
+            string mediaStartTime = eventObject.FindValueByParentAndKey<string>("media", "start_time", "0");
 
             string mediaChannelId = eventObject.FindValueByParentAndKey<string>("snippet", "channelId");
             string mediaChannelTitle = eventObject.FindValueByParentAndKey<string>("snippet", "channelTitle");
