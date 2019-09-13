@@ -61,6 +61,47 @@ namespace MediaShareBot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 4Head
+        ///Anon
+        ///BitBoss
+        ///Charity
+        ///Cheer
+        ///DansGame
+        ///DoodleCheer
+        ///EleGiggle
+        ///FailFish
+        ///FrankerZ
+        ///Goal
+        ///HeyGuys
+        ///HolidayCheer
+        ///Kappa
+        ///Kreygasm
+        ///MrDestructoid
+        ///Muxy
+        ///NotLikeThis
+        ///PJSalt
+        ///Party
+        ///PogChamp
+        ///Pride
+        ///RIPCheer
+        ///Scoops
+        ///SeemsGood
+        ///Shamrock
+        ///ShowLove
+        ///Streamlabs
+        ///SwiftRage
+        ///TriHard
+        ///VoHiYo
+        ///bday
+        ///uni.
+        /// </summary>
+        internal static string Cheermotes {
+            get {
+                return ResourceManager.GetString("Cheermotes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to # Version 2019080501, Last Updated Mon Aug  5 07:07:01 2019 UTC
         ///AAA
         ///AARP

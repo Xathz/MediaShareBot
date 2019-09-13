@@ -117,6 +117,42 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Cheermotes" xml:space="preserve">
+    <value>4Head
+Anon
+BitBoss
+Charity
+Cheer
+DansGame
+DoodleCheer
+EleGiggle
+FailFish
+FrankerZ
+Goal
+HeyGuys
+HolidayCheer
+Kappa
+Kreygasm
+MrDestructoid
+Muxy
+NotLikeThis
+PJSalt
+Party
+PogChamp
+Pride
+RIPCheer
+Scoops
+SeemsGood
+Shamrock
+ShowLove
+Streamlabs
+SwiftRage
+TriHard
+VoHiYo
+bday
+uni</value>
+    <comment>Last Updated 2019-09-13T19:18:12+0000</comment>
+  </data>
   <data name="TLDs" xml:space="preserve">
     <value># Version 2019080501, Last Updated Mon Aug  5 07:07:01 2019 UTC
 AAA

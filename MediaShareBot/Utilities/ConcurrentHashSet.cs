@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -68,6 +69,18 @@ namespace MediaShareBot.Utilities {
             } finally {
                 if (_Lock.IsWriteLockHeld) {
                     _Lock.ExitWriteLock();
+                }
+            }
+        }
+
+        public IEnumerator GetEnumerator() {
+            _Lock.EnterReadLock();
+
+            try {
+                return _HashSet.GetEnumerator();
+            } finally {
+                if (_Lock.IsReadLockHeld) {
+                    _Lock.ExitReadLock();
                 }
             }
         }

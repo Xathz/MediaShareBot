@@ -52,6 +52,11 @@ namespace MediaShareBot {
         public const long DiscordMaximumFileSize = 8388119;
 
         /// <summary>
+        /// YouTube logo url.
+        /// </summary>
+        public const string YouTubeLogoUrl = "https://cdn.discordapp.com/attachments/559869208976949278/622132923708997638/youtube.png";
+
+        /// <summary>
         /// Streamlabs brand color, used for Discord embeds.
         /// </summary>
         /// <remarks>

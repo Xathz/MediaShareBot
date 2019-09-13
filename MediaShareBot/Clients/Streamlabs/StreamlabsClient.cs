@@ -149,6 +149,16 @@ namespace MediaShareBot.Clients.Streamlabs {
 
                 if (eventType == EventType.Donation) {
                     DonationEvent.Process(eventObject);
+
+                } else if (eventType == EventType.BitDonation) {
+                    BitDonationEvent.Process(eventObject);
+
+                } else if (eventType == EventType.Subscription) {
+                    SubscriptionEvent.Process(eventObject);
+
+                } else if (eventType == EventType.SubscriptionGift) {
+                    SubscriptionGiftEvent.Process(eventObject);
+
                 }
 
 

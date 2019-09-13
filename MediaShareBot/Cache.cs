@@ -14,7 +14,13 @@ namespace MediaShareBot {
 
         private static readonly MemoryCache _Cache = MemoryCache.Default;
 
-        public static IReadOnlyCollection<string> TLDs { get; private set; }
+        public static IReadOnlyCollection<string> TopLevelDomains { get; private set; }
+
+        public static IReadOnlyCollection<string> TwitchCheermotes { get; private set; }
+
+        public static IReadOnlyDictionary<string, string> TwitchSubscriptionPlans { get; private set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+            { "prime", "Prime" }, { "1000", "Tier 1" }, { "2000", "Tier 2" }, { "3000", "Tier 3" }
+        };
 
         /// <summary>
         /// Add an entry to the cache.
@@ -125,12 +131,15 @@ namespace MediaShareBot {
             }
 
             // Download and parse top level domains
-            await DownloadTLDsAsync();
+            await DownloadTopLevelDomainsAsync();
+
+            // Parse Twitch cheermotes
+            ParseTwitchCheermotes();
 
             LoggingManager.Log.Info($"Loaded {_Cache.GetCount()} items into cache");
         }
 
-        private static async Task DownloadTLDsAsync() {
+        private static async Task DownloadTopLevelDomainsAsync() {
             try {
                 Task<string> download = Http.SendRequestAsync("https://data.iana.org/TLD/tlds-alpha-by-domain.txt");
                 string data = await download;
@@ -148,9 +157,9 @@ namespace MediaShareBot {
                         throw new ArgumentException("Collection is empty", nameof(domains));
                     }
 
-                    TLDs = domains.ToList().AsReadOnly();
+                    TopLevelDomains = domains.ToList().AsReadOnly();
 
-                    LoggingManager.Log.Info($"Downloaded and parsed {TLDs.Count} top level domains");
+                    LoggingManager.Log.Info($"Downloaded and parsed {TopLevelDomains.Count} top level domains");
                 } else {
                     throw download.Exception;
                 }
@@ -165,10 +174,25 @@ namespace MediaShareBot {
                     }
                 }
 
-                TLDs = domains.ToList().AsReadOnly();
+                TopLevelDomains = domains.ToList().AsReadOnly();
 
-                LoggingManager.Log.Info($"Parsed from resources {TLDs.Count} top level domains");
+                LoggingManager.Log.Info($"Parsed from resource {TopLevelDomains.Count} top level domains");
             }
+        }
+
+        private static void ParseTwitchCheermotes() {
+            List<string> lines = Resources.Cheermotes.SplitByNewLines();
+            HashSet<string> cheermotes = new HashSet<string>();
+            foreach (string line in lines) {
+                if (!line.StartsWith("#")) {
+                    cheermotes.Add(line.ToLower());
+                }
+            }
+
+            TwitchCheermotes = cheermotes.ToList().AsReadOnly();
+            StringExt.SetCheermotesRegex(); // Bad way to do this really, can't think of another way
+
+            LoggingManager.Log.Info($"Parsed from resource {TwitchCheermotes.Count} Twitch cheermotes");
         }
 
     }

@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MediaShareBot.Clients.Discord {
 
-    public static class DiscordClient {
+    public static partial class DiscordClient {
 
         private static DiscordSocketConfig _DiscordConfig;
         private static DiscordSocketClient _DiscordClient;
@@ -71,29 +71,6 @@ namespace MediaShareBot.Clients.Discord {
 
                 _DiscordClient.Dispose();
             } catch { } // Just swallow
-        }
-
-        /// <summary>
-        /// Send a message to a channel or user.
-        /// </summary>
-        /// <param name="id">Channel id or user id (direct message) to send a message to.</param>
-        /// <param name="message">Message to send</param>
-        /// <returns>Id of the message if successful.</returns>
-        public static async Task<ulong?> SendMessageAsync(ulong id, string message) {
-            try {
-                if (_DiscordClient.GetChannel(id) is IMessageChannel channel) {
-                    return (await channel.SendMessageAsync(message)).Id;
-                }
-
-                if (_DiscordClient.GetUser(id) is IUser user) {
-                    return (await user.SendMessageAsync(message)).Id;
-                }
-
-                return null;
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-                return null;
-            }
         }
 
         private static Task Log(LogMessage message) {

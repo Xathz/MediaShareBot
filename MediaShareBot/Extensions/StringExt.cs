@@ -9,6 +9,15 @@ namespace MediaShareBot.Extensions {
 
         private static readonly Regex _UrlRegex = new Regex("https?://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+        private static Regex _CheermotesRegex = null;
+
+        private static readonly string[] _MarkdownSensitiveCharacters = { "\\", "*", "_", "~", "`", "|", ">" };
+
+        /// <summary>
+        /// Call once the cheermotes are downloaded and or parsed.
+        /// </summary>
+        public static void SetCheermotesRegex() => _CheermotesRegex = new Regex($@"({string.Join("|", Cache.TwitchCheermotes)})\d+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         /// <summary>
         /// Split a string into chunks based on max length.
         /// </summary>
@@ -143,6 +152,32 @@ namespace MediaShareBot.Extensions {
             }
 
             return urls;
+        }
+
+        /// <summary>
+        /// Remove all Twitch cheermotes from a string.
+        /// </summary>
+        public static string RemoveCheermotes(this string input) {
+            if (_CheermotesRegex == null) { return input; }
+
+            MatchCollection matches = _CheermotesRegex.Matches(input);
+            foreach (Match match in matches) {
+                input = input.Replace(match.Value, "");
+            }
+
+            return input.Trim();
+        }
+
+        /// <summary>
+        /// Sanitizes the string, safely escaping any Markdown sequences.
+        /// </summary>
+        /// <remarks>https://git.io/JeY0Y</remarks>
+        public static string SanitizeForMarkdown(this string input) {
+            foreach (string unsafeChar in _MarkdownSensitiveCharacters) {
+                input = input.Replace(unsafeChar, $"\\{unsafeChar}");
+            }
+
+            return input;
         }
 
     }
