@@ -14,6 +14,9 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
             if (type == "subgift") { return; }
 
             string displayName = eventObject.FindValueByKey<string>("display_name").SanitizeForMarkdown();
+            if (string.IsNullOrEmpty(displayName)) {
+                displayName = eventObject.FindValueByKey<string>("name").SanitizeForMarkdown();
+            }
 
             string message = eventObject.FindValueByKey<string>("message").SanitizeForMarkdown();
             string formattedMessage = !string.IsNullOrWhiteSpace(message) ? $"```{message}```" : "";
@@ -39,7 +42,7 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
                 $"{months} {monthWord}{Environment.NewLine}" +
                 $"{(!string.IsNullOrWhiteSpace(message) ? message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
                 $" id {eventObject.FindValueByKey<string>("id")}{Environment.NewLine}" +
-                $"_id {eventObject.FindValueByKey<string>("_id")}");
+                $"_id {eventObject.FindValueByKey<string>("_id")}```");
 
         }
 

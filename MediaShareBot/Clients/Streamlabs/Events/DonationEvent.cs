@@ -18,6 +18,10 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
 
             decimal amount = eventObject.FindValueByKey<decimal>("amount");
             string formattedAmount = eventObject.FindValueByKey<string>("formattedAmount");
+            if (string.IsNullOrEmpty(formattedAmount)) {
+                formattedAmount = eventObject.FindValueByKey<string>("formatted_amount");
+            }
+
             string icon = amount >= SettingsManager.Configuration.LargeDonationThreshold ? ":small_blue_diamond: " : "";
 
             // Donation message
@@ -34,32 +38,8 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
                 $"{(!string.IsNullOrWhiteSpace(mediaTitle) ? mediaTitle : "<no media>")}{Environment.NewLine}" +
                 $"{(!string.IsNullOrEmpty(mediaId) ? $"https://www.youtube.com/watch?v={mediaId}&t={mediaStartTime}" : "<no media>")}{Environment.NewLine}{Environment.NewLine}" +
                 $" id {eventObject.FindValueByKey<string>("id")}{Environment.NewLine}" +
-                $"_id {eventObject.FindValueByKey<string>("_id")}");
+                $"_id {eventObject.FindValueByKey<string>("_id")}```");
 
-        }
-
-        public static string GetBestThumbnailUrl(JObject eventObject) {
-            // 1280x720
-            string maxRes = eventObject.FindValueByParentAndKey<string>("maxres", "url");
-            if (!string.IsNullOrEmpty(maxRes)) { return maxRes; }
-
-            // 640x480
-            string standardRes = eventObject.FindValueByParentAndKey<string>("standard", "url");
-            if (!string.IsNullOrEmpty(standardRes)) { return standardRes; }
-
-            // 480x360
-            string highRes = eventObject.FindValueByParentAndKey<string>("high", "url");
-            if (!string.IsNullOrEmpty(highRes)) { return highRes; }
-
-            // 320x180
-            string mediumRes = eventObject.FindValueByParentAndKey<string>("medium", "url");
-            if (!string.IsNullOrEmpty(mediumRes)) { return mediumRes; }
-
-            // 120x90
-            string defaultRes = eventObject.FindValueByParentAndKey<string>("default", "url");
-            if (!string.IsNullOrEmpty(defaultRes)) { return defaultRes; }
-
-            return Constants.YouTubeLogoUrl;
         }
 
     }

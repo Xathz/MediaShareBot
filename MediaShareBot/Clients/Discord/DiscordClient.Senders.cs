@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
 using MediaShareBot.Settings;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace MediaShareBot.Clients.Discord {
 
@@ -13,6 +9,7 @@ namespace MediaShareBot.Clients.Discord {
 
         public static async Task SendEventLogMessageAsync(string message) {
             if (SettingsManager.Configuration.DiscordChannels.EventLog == 0) { return; }
+            if (!SentMessagesCache.Add(message)) { return; }
 
             try {
                 if (_DiscordClient.GetChannel(SettingsManager.Configuration.DiscordChannels.EventLog) is IMessageChannel channel) {
@@ -29,6 +26,7 @@ namespace MediaShareBot.Clients.Discord {
             string mediaChannelUrl, string mediaChannelTitle) {
 
             if (SettingsManager.Configuration.DiscordChannels.MediaShare == 0) { return; }
+            if (!SentMessagesCache.Add(from, message, amount)) { return; }
 
             try {
                 if (_DiscordClient.GetChannel(SettingsManager.Configuration.DiscordChannels.MediaShare) is IMessageChannel channel) {
@@ -66,6 +64,7 @@ namespace MediaShareBot.Clients.Discord {
 
         public static async Task SendSubOrDonationMessageAsync(string message) {
             if (SettingsManager.Configuration.DiscordChannels.SubsAndDonations == 0) { return; }
+            if (!SentMessagesCache.Add(message)) { return; }
 
             try {
                 if (_DiscordClient.GetChannel(SettingsManager.Configuration.DiscordChannels.SubsAndDonations) is IMessageChannel channel) {
@@ -74,29 +73,6 @@ namespace MediaShareBot.Clients.Discord {
 
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
-            }
-        }
-
-        /// <summary>
-        /// Send a message to a channel or user (direct message).
-        /// </summary>
-        /// <param name="id">Channel id or user id (direct message) to send a message to.</param>
-        /// <param name="message">Message to send.</param>
-        /// <returns>Id of the message if successful.</returns>
-        public static async Task<ulong?> SendMessageAsync(ulong id, string message) {
-            try {
-                if (_DiscordClient.GetChannel(id) is IMessageChannel channel) {
-                    return (await channel.SendMessageAsync(message)).Id;
-                }
-
-                if (_DiscordClient.GetUser(id) is IUser user) {
-                    return (await user.SendMessageAsync(message)).Id;
-                }
-
-                return null;
-            } catch (Exception ex) {
-                LoggingManager.Log.Error(ex);
-                return null;
             }
         }
 

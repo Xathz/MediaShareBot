@@ -1,4 +1,4 @@
-﻿using System;
+﻿using MediaShareBot.Exceptions;
 
 namespace MediaShareBot.Clients.Streamlabs {
 
@@ -19,6 +19,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
                 // Subscriptions
                 case "subscription": return EventType.Subscription;
+                case "resub": return EventType.ReSubscription;
                 case "submysterygift": return EventType.SubscriptionGift;
                 case "subtember": return EventType.Subtember;
 
@@ -46,7 +47,7 @@ namespace MediaShareBot.Clients.Streamlabs {
                 case "eventspanelsettingsupdate": return EventType.EventsPanelSettingsUpdate;
                 case "separatedlayout": return EventType.SeparatedLayout;
 
-                default: throw new InvalidCastException($"Failed to parse response type. Supplied string: {responseType}");
+                default: throw new StreamlabsParseTypeException($"Failed to parse response type. Default reached. Supplied string: {responseType}");
             }
         }
 
@@ -64,6 +65,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
             // Subscriptions
             Subscription,
+            ReSubscription,
             SubscriptionGift,
             Subtember,
 

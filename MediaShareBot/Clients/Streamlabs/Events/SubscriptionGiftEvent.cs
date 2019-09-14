@@ -26,19 +26,14 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
                 planName = $" ({planLookup})";
             }
 
-            // Subscription gift messages get spammed from the socket mutiple times
-            if (HashTracker.Add(Enums.EventType.SubscriptionGift, displayName, eventObject.FindValueByKey<string>("_id"))) {
+            // Subscription gift message
+            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{displayName}** gifted **{amount} {subWord}**{planName}");
 
-                // Subscription gift message
-                await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{displayName}** gifted **{amount} {subWord}**{planName}");
-
-                // Event log
-                await DiscordClient.SendEventLogMessageAsync($"Twitch Subscription Gift```{displayName}{Environment.NewLine}" +
-                    $"{amount} {subWord}{Environment.NewLine}{Environment.NewLine}" +
-                    $" id {eventObject.FindValueByKey<string>("id")}{Environment.NewLine}" +
-                    $"_id {eventObject.FindValueByKey<string>("_id")}");
-
-            }
+            // Event log
+            await DiscordClient.SendEventLogMessageAsync($"Twitch Subscription Gift```{displayName}{Environment.NewLine}" +
+                $"{amount} {subWord}{Environment.NewLine}{Environment.NewLine}" +
+                $" id {eventObject.FindValueByKey<string>("id")}{Environment.NewLine}" +
+                $"_id {eventObject.FindValueByKey<string>("_id")}```");
 
         }
 

@@ -11,6 +11,9 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
         public static async void Process(JObject eventObject) {
 
             string displayName = eventObject.FindValueByKey<string>("display_name").SanitizeForMarkdown();
+            if (string.IsNullOrEmpty(displayName)) {
+                displayName = eventObject.FindValueByKey<string>("name").SanitizeForMarkdown();
+            }
 
             string message = eventObject.FindValueByKey<string>("message").SanitizeForMarkdown();
             string cheerlessMessage = message.RemoveCheermotes();
@@ -27,7 +30,7 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
                 $"{amount} bits{Environment.NewLine}" +
                 $"{(!string.IsNullOrWhiteSpace(message) ? message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
                 $" id {eventObject.FindValueByKey<string>("id")}{Environment.NewLine}" +
-                $"_id {eventObject.FindValueByKey<string>("_id")}");
+                $"_id {eventObject.FindValueByKey<string>("_id")}```");
 
         }
 

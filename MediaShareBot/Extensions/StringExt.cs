@@ -22,8 +22,10 @@ namespace MediaShareBot.Extensions {
         /// Split a string into chunks based on max length.
         /// </summary>
         public static List<string> SplitIntoChunks(this string input, int maxChunkSize) {
-            string[] words = input.Split(' ');
             List<string> chunks = new List<string>();
+            if (string.IsNullOrWhiteSpace(input)) { return chunks; }
+
+            string[] words = input.Split(' ');
             int index = 0;
 
             foreach (string word in words) {
@@ -47,8 +49,10 @@ namespace MediaShareBot.Extensions {
         /// Split a string into chunks based on max length, preserving and not breaking words or before a new line. 
         /// </summary>
         public static List<string> SplitIntoChunksPreserveNewLines(this string input, int maxChunkSize) {
-            string[] lines = input.Split(new string[] { Environment.NewLine, "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
             List<string> chunks = new List<string>();
+            if (string.IsNullOrWhiteSpace(input)) { return chunks; }
+
+            string[] lines = input.Split(new string[] { Environment.NewLine, "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
             int index = 0;
 
             foreach (string line in lines) {
@@ -118,6 +122,7 @@ namespace MediaShareBot.Extensions {
                 i += pattern.Length;
                 count++;
             }
+
             return count;
         }
 
@@ -127,6 +132,8 @@ namespace MediaShareBot.Extensions {
         /// <param name="totalWidth">The number of characters in the resulting string, equal to the number of original characters plus any additional padding characters.</param>
         /// <remarks>https://stackoverflow.com/a/17590723</remarks>
         public static string PadBoth(this string input, int totalWidth) {
+            if (string.IsNullOrWhiteSpace(input)) { return input; }
+
             int spaces = totalWidth - input.Length;
             int padLeft = spaces / 2 + input.Length;
             return input.PadLeft(padLeft).PadRight(totalWidth);
@@ -144,6 +151,8 @@ namespace MediaShareBot.Extensions {
         /// Get all urls from a string.
         /// </summary>
         public static List<string> GetUrls(this string input) {
+            if (string.IsNullOrWhiteSpace(input)) { return new List<string>(); }
+
             MatchCollection matches = _UrlRegex.Matches(input);
             List<string> urls = new List<string>();
 
@@ -159,6 +168,7 @@ namespace MediaShareBot.Extensions {
         /// </summary>
         public static string RemoveCheermotes(this string input) {
             if (_CheermotesRegex == null) { return input; }
+            if (string.IsNullOrWhiteSpace(input)) { return input; }
 
             MatchCollection matches = _CheermotesRegex.Matches(input);
             foreach (Match match in matches) {
@@ -169,15 +179,17 @@ namespace MediaShareBot.Extensions {
         }
 
         /// <summary>
-        /// Sanitizes the string, safely escaping any Markdown sequences.
+        /// Sanitizes the string, safely escaping any markdown sequences.
         /// </summary>
         /// <remarks>https://git.io/JeY0Y</remarks>
         public static string SanitizeForMarkdown(this string input) {
+            if (string.IsNullOrWhiteSpace(input)) { return input; }
+
             foreach (string unsafeChar in _MarkdownSensitiveCharacters) {
                 input = input.Replace(unsafeChar, $"\\{unsafeChar}");
             }
 
-            return input;
+            return input.Trim();
         }
 
     }

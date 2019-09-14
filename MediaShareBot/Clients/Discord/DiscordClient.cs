@@ -70,7 +70,7 @@ namespace MediaShareBot.Clients.Discord {
                 }
 
                 _DiscordClient.Dispose();
-            } catch { } // Just swallow
+            } catch { } // Swallow
         }
 
         private static Task Log(LogMessage message) {

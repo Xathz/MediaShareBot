@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -24,7 +25,9 @@ namespace MediaShareBot.Settings {
             try {
                 LoadJSON(Constants.SettingsFile);
 
-                LoggingManager.Log.Info("Settings loaded.");
+                LoggingManager.Log.Info("Settings loaded");
+                Validate();
+
                 return;
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
@@ -74,9 +77,30 @@ namespace MediaShareBot.Settings {
         }
 
         /// <summary>
+        /// Validate the settings.
+        /// </summary>
+        private static void Validate() {
+            List<string> reasons = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(Configuration.BotNickname)) { reasons.Add("bot nickname is blank"); }
+            if (string.IsNullOrWhiteSpace(Configuration.BotPlaying)) { reasons.Add("bot playing status is blank"); }
+            if (string.IsNullOrWhiteSpace(Configuration.DiscordToken)) { reasons.Add("Dicord token is blank"); }
+            if (string.IsNullOrWhiteSpace(Configuration.StreamlabsToken)) { reasons.Add("Streamlabs token is blank"); }
+
+            if (reasons.Count > 0) {
+                LoggingManager.Log.Fatal($"Settings failed validation due to: {string.Join(", ", reasons)}.");
+                LoggingManager.Log.Fatal($"Check the settings file at '{Constants.SettingsFile}'");
+
+                Environment.Exit(1);
+            } else {
+                LoggingManager.Log.Info("Settings validated");
+            }
+        }
+
+        /// <summary>
         /// Force default settings and save to the disk at <see cref="Constants.SettingsFile" />.
         /// </summary>
-        public static void SaveDefault() {
+        private static void SaveDefault() {
             Configuration = new Configuration();
             Save();
         }

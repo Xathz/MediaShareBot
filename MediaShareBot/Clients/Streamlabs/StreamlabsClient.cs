@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Humanizer;
 using MediaShareBot.Clients.Streamlabs.Events;
+using MediaShareBot.Exceptions;
 using MediaShareBot.Extensions;
 using MediaShareBot.Settings;
 using MediaShareBot.Utilities;
@@ -156,6 +157,9 @@ namespace MediaShareBot.Clients.Streamlabs {
                 } else if (eventType == EventType.Subscription) {
                     SubscriptionEvent.Process(eventObject);
 
+                } else if (eventType == EventType.ReSubscription) {
+                    SubscriptionEvent.Process(eventObject);
+
                 } else if (eventType == EventType.SubscriptionGift) {
                     SubscriptionGiftEvent.Process(eventObject);
 
@@ -164,6 +168,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
 
 
+            } catch (StreamlabsParseTypeException) { // Swallow
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }

@@ -49,15 +49,6 @@ namespace MediaShareBot {
             Configurator.DateTimeHumanizeStrategy = new PrecisionDateTimeHumanizeStrategy(precision: .95);
             Configurator.DateTimeOffsetHumanizeStrategy = new PrecisionDateTimeOffsetHumanizeStrategy(precision: .95);
 
-            // Validate settings
-            if (string.IsNullOrWhiteSpace(SettingsManager.Configuration.DiscordToken)) {
-                LoggingManager.Log.Fatal($"You must set a Discord token in the settings file: {Constants.SettingsFile}");
-                LoggingManager.Log.Fatal("Check the website for instructions and information https://mediasharebot.com");
-            }
-            if (string.IsNullOrWhiteSpace(SettingsManager.Configuration.StreamlabsToken)) {
-                LoggingManager.Log.Fatal($"You must set a Streamlabs token in the settings file: {Constants.SettingsFile}");
-                LoggingManager.Log.Fatal("Check the website for instructions and information https://mediasharebot.com");
-            }
         }
 
         private async Task StartAsync() {
