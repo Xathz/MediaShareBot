@@ -66,8 +66,8 @@ namespace MediaShareBot.Clients.Streamlabs {
                 _Client.OnClosed += SocketClosedAsync;
 
                 _Client.On("event", response => {
-                    Task runner = Task.Run(() => {
-                        ProcessEvent(response.Text);
+                    Task runner = Task.Run(async () => {
+                        await ProcessEvent(response.Text);
                     });
                 });
 
@@ -143,32 +143,35 @@ namespace MediaShareBot.Clients.Streamlabs {
             Environment.Exit(1);
         }
 
-        private static void ProcessEvent(string eventText) {
+        private static async Task ProcessEvent(string eventText) {
+
+#if DEBUG
+            Console.WriteLine($"{DateTime.Now.ToString(Constants.DateTimeFormatFull)}: {eventText}");
+            Console.WriteLine("================");
+#endif
+
             try {
-                JObject eventObject = JObject.Parse(eventText);
-                EventType eventType = ParseEventType(eventObject.Value<string>("type"));
+                EventValueParser parser = new EventValueParser(eventText);
 
-                if (eventType == EventType.Donation) {
-                    DonationEvent.Process(eventObject);
+                if (parser.Type == EventType.Donation) {
+                    await new DonationEvent(parser).Process();
 
-                } else if (eventType == EventType.BitDonation) {
-                    BitDonationEvent.Process(eventObject);
+                } else if (parser.Type == EventType.BitDonation) {
+                    await new BitDonationEvent(parser).Process();
 
-                } else if (eventType == EventType.Subscription) {
-                    SubscriptionEvent.Process(eventObject);
+                } else if (parser.Type == EventType.Subscription) {
+                    await new SubscriptionEvent(parser).Process();
 
-                } else if (eventType == EventType.ReSubscription) {
-                    SubscriptionEvent.Process(eventObject);
+                } else if (parser.Type == EventType.ReSubscription) {
+                    await new SubscriptionEvent(parser).Process();
 
-                } else if (eventType == EventType.SubscriptionGift) {
-                    SubscriptionGiftEvent.Process(eventObject);
+                } else if (parser.Type == EventType.SubscriptionGift) {
+                    await new SubscriptionGiftEvent(parser).Process();
 
                 }
 
-
-
-
-            } catch (StreamlabsParseTypeException) { // Swallow
+            } catch (StreamlabsParseTypeException ex) {
+                LoggingManager.Log.Warn(ex);
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }

@@ -1,36 +1,29 @@
 ﻿using System;
+using System.Threading.Tasks;
 using MediaShareBot.Clients.Discord;
-using MediaShareBot.Extensions;
 using MediaShareBot.Settings;
-using Newtonsoft.Json.Linq;
 
 namespace MediaShareBot.Clients.Streamlabs.Events {
 
-    public static class BitDonationEvent {
+    public class BitDonationEvent : IStreamlabsEvent {
 
-        public static async void Process(JObject eventObject) {
+        public EventValueParser Parser { get; private set; }
 
-            string displayName = eventObject.FindValueByKey<string>("display_name").SanitizeForMarkdown();
-            if (string.IsNullOrEmpty(displayName)) {
-                displayName = eventObject.FindValueByKey<string>("name").SanitizeForMarkdown();
-            }
+        public BitDonationEvent(EventValueParser parser) => Parser = parser;
 
-            string message = eventObject.FindValueByKey<string>("message").SanitizeForMarkdown();
-            string cheerlessMessage = message.RemoveCheermotes();
-            string formattedMessage = !string.IsNullOrWhiteSpace(cheerlessMessage) ? $"```{cheerlessMessage}```" : "";
+        public async Task Process() {
 
-            int amount = eventObject.FindValueByKey<int>("amount");
-            string icon = amount >= SettingsManager.Configuration.LargeBitsDonationThreshold ? ":small_blue_diamond: " : "";
+            string icon = Parser.Amount >= SettingsManager.Configuration.LargeBitsDonationThreshold ? ":small_blue_diamond: " : "";
 
             // Bits donation message
-            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{displayName}** donated **{amount} bits**{formattedMessage}");
+            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.From}** donated **{Parser.Amount} bits**{Parser.MessageCodeBlock}");
 
             // Event log
-            await DiscordClient.SendEventLogMessageAsync($"Twitch Bits Donation```{displayName}{Environment.NewLine}" +
-                $"{amount} bits{Environment.NewLine}" +
-                $"{(!string.IsNullOrWhiteSpace(message) ? message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
-                $" id {eventObject.FindValueByKey<string>("id")}{Environment.NewLine}" +
-                $"_id {eventObject.FindValueByKey<string>("_id")}```");
+            await DiscordClient.SendEventLogMessageAsync($"Twitch Bits Donation```{Parser.From}{Environment.NewLine}" +
+                $"{Parser.Amount} bits{Environment.NewLine}" +
+                $"{(!string.IsNullOrWhiteSpace(Parser.Message) ? Parser.Message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
+                $" id {Parser.EventLogId}{Environment.NewLine}" +
+                $"_id {Parser.EventLogUnderscoreId}```");
 
         }
 

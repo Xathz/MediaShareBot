@@ -4,8 +4,8 @@ namespace MediaShareBot.Clients.Streamlabs {
 
     public static class Enums {
 
-        public static EventType ParseEventType(string responseType) {
-            switch (responseType.ToLowerInvariant()) {
+        public static EventType ParseEventType(string eventType) {
+            switch (eventType.ToLowerInvariant()) {
                 // Streamlabs alerts
                 case "alertplaying": return EventType.AlertPlaying;
                 case "acceptalert": return EventType.AcceptAlert;
@@ -47,11 +47,13 @@ namespace MediaShareBot.Clients.Streamlabs {
                 case "eventspanelsettingsupdate": return EventType.EventsPanelSettingsUpdate;
                 case "separatedlayout": return EventType.SeparatedLayout;
 
-                default: throw new StreamlabsParseTypeException($"Failed to parse response type. Default reached. Supplied string: {responseType}");
+                default: throw new StreamlabsParseTypeException($"Failed to parse type. Default reached. Supplied string: {eventType}");
             }
         }
 
         public enum EventType {
+            Default = 0, // Better than nullable
+
             // Streamlabs alerts
             AlertPlaying,
             AcceptAlert,

@@ -1,44 +1,31 @@
 ﻿using System;
+using System.Threading.Tasks;
 using MediaShareBot.Clients.Discord;
-using MediaShareBot.Extensions;
 using MediaShareBot.Settings;
-using Newtonsoft.Json.Linq;
 
 namespace MediaShareBot.Clients.Streamlabs.Events {
 
-    public static class DonationEvent {
+    public class DonationEvent : IStreamlabsEvent {
 
-        public static async void Process(JObject eventObject) {
+        public EventValueParser Parser { get; private set; }
 
-            string from = eventObject.FindValueByKey<string>("from").SanitizeForMarkdown();
-            string fromId = eventObject.FindValueByKey<string>("from_user_id");
+        public DonationEvent(EventValueParser parser) => Parser = parser;
 
-            string message = eventObject.FindValueByKey<string>("message").SanitizeForMarkdown();
-            string formattedMessage = !string.IsNullOrWhiteSpace(message) ? $"```{message}```" : "";
+        public async Task Process() {
 
-            decimal amount = eventObject.FindValueByKey<decimal>("amount");
-            string formattedAmount = eventObject.FindValueByKey<string>("formattedAmount");
-            if (string.IsNullOrEmpty(formattedAmount)) {
-                formattedAmount = eventObject.FindValueByKey<string>("formatted_amount");
-            }
-
-            string icon = amount >= SettingsManager.Configuration.LargeDonationThreshold ? ":small_blue_diamond: " : "";
+            string icon = Parser.Amount >= SettingsManager.Configuration.LargeDonationThreshold ? ":small_blue_diamond: " : "";
 
             // Donation message
-            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{from}** donated **{formattedAmount}**{formattedMessage}");
-
-            string mediaId = eventObject.FindValueByParentAndKey<string>("media", "id");
-            string mediaTitle = eventObject.FindValueByParentAndKey<string>("media", "title").SanitizeForMarkdown();
-            string mediaStartTime = eventObject.FindValueByParentAndKey<string>("media", "start_time", "0");
+            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.From}** donated **{Parser.AmountFormatted}**{Parser.MessageCodeBlock}");
 
             // Event log
-            await DiscordClient.SendEventLogMessageAsync($"Streamlabs Donation```{from} ({fromId}){Environment.NewLine}" +
-                $"{formattedAmount}{Environment.NewLine}" +
-                $"{(!string.IsNullOrWhiteSpace(message) ? message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
-                $"{(!string.IsNullOrWhiteSpace(mediaTitle) ? mediaTitle : "<no media>")}{Environment.NewLine}" +
-                $"{(!string.IsNullOrEmpty(mediaId) ? $"https://www.youtube.com/watch?v={mediaId}&t={mediaStartTime}" : "<no media>")}{Environment.NewLine}{Environment.NewLine}" +
-                $" id {eventObject.FindValueByKey<string>("id")}{Environment.NewLine}" +
-                $"_id {eventObject.FindValueByKey<string>("_id")}```");
+            await DiscordClient.SendEventLogMessageAsync($"Streamlabs Donation```{Parser.From} ({Parser.FromUserId}){Environment.NewLine}" +
+                $"{Parser.AmountFormatted}{Environment.NewLine}" +
+                $"{(!string.IsNullOrWhiteSpace(Parser.Message) ? Parser.Message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
+                $"{(Parser.ContainsMedia() ? Parser.MediaTitle : "<no media>")}{Environment.NewLine}" +
+                $"{(Parser.ContainsMedia() ? $"https://www.youtube.com/watch?v={Parser.MediaId}&t={Parser.MediaStartTime}" : "<no media>")}{Environment.NewLine}{Environment.NewLine}" +
+                $" id {Parser.EventLogId}{Environment.NewLine}" +
+                $"_id {Parser.EventLogUnderscoreId}```");
 
         }
 

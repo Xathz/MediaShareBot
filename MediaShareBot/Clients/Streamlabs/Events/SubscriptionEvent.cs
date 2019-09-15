@@ -1,48 +1,33 @@
 ﻿using System;
+using System.Threading.Tasks;
 using MediaShareBot.Clients.Discord;
-using MediaShareBot.Extensions;
 using MediaShareBot.Settings;
-using Newtonsoft.Json.Linq;
+using static MediaShareBot.Clients.Streamlabs.Enums;
 
 namespace MediaShareBot.Clients.Streamlabs.Events {
 
-    public static class SubscriptionEvent {
+    public class SubscriptionEvent : IStreamlabsEvent {
 
-        public static async void Process(JObject eventObject) {
+        public EventValueParser Parser { get; private set; }
 
-            string type = eventObject.FindValueByKey<string>("sub_type");
-            if (type == "subgift") { return; }
+        public SubscriptionEvent(EventValueParser parser) => Parser = parser;
 
-            string displayName = eventObject.FindValueByKey<string>("display_name").SanitizeForMarkdown();
-            if (string.IsNullOrEmpty(displayName)) {
-                displayName = eventObject.FindValueByKey<string>("name").SanitizeForMarkdown();
-            }
+        public async Task Process() {
 
-            string message = eventObject.FindValueByKey<string>("message").SanitizeForMarkdown();
-            string formattedMessage = !string.IsNullOrWhiteSpace(message) ? $"```{message}```" : "";
-            string months = eventObject.FindValueByKey<string>("months");
+            if (Parser.Type == EventType.SubscriptionGift) { return; }
 
-            string icon = "";
-            string monthWord = "month";
-            if (int.TryParse(months, out int intMonths)) {
-                icon = intMonths >= SettingsManager.Configuration.LargeSubMonthHolder ? ":small_orange_diamond: " : icon;
-                monthWord = intMonths > 1 ? "months" : monthWord;
-            }
-
-            string planName = "";
-            if (Cache.TwitchSubscriptionPlans.TryGetValue(eventObject.FindValueByKey<string>("sub_plan"), out string planLookup)) {
-                planName = $" ({planLookup})";
-            }
-
+            string icon = Parser.Months >= SettingsManager.Configuration.LargeSubMonthHolder ? ":small_orange_diamond: " : "";
+            string monthWord = Parser.Months > 1 ? "months" : "month";
+       
             // Subscription message
-            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{displayName}** subscribed for **{months} {monthWord}**{planName}{formattedMessage}");
+            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.From}** subscribed for **{Parser.Months} {monthWord}** ({Parser.SubscriptionPlan}){Parser.MessageCodeBlock}");
 
             // Event log
-            await DiscordClient.SendEventLogMessageAsync($"Twitch Subscription```{displayName}{Environment.NewLine}" +
-                $"{months} {monthWord}{Environment.NewLine}" +
-                $"{(!string.IsNullOrWhiteSpace(message) ? message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
-                $" id {eventObject.FindValueByKey<string>("id")}{Environment.NewLine}" +
-                $"_id {eventObject.FindValueByKey<string>("_id")}```");
+            await DiscordClient.SendEventLogMessageAsync($"Twitch Subscription```{Parser.From}{Environment.NewLine}" +
+                $"{Parser.Months} {monthWord}{Environment.NewLine}" +
+                $"{(!string.IsNullOrWhiteSpace(Parser.Message) ? Parser.Message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
+                $" id {Parser.EventLogId}{Environment.NewLine}" +
+                $"_id {Parser.EventLogUnderscoreId}```");
 
         }
 

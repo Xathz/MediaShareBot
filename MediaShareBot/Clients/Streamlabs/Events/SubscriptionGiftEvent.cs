@@ -1,39 +1,29 @@
 ﻿using System;
+using System.Threading.Tasks;
 using MediaShareBot.Clients.Discord;
-using MediaShareBot.Extensions;
 using MediaShareBot.Settings;
-using Newtonsoft.Json.Linq;
 
 namespace MediaShareBot.Clients.Streamlabs.Events {
 
-    public static class SubscriptionGiftEvent {
+    public class SubscriptionGiftEvent : IStreamlabsEvent {
 
-        public static async void Process(JObject eventObject) {
+        public EventValueParser Parser { get; private set; }
 
-            string displayName = eventObject.FindValueByKey<string>("gifter_display_name").SanitizeForMarkdown();
+        public SubscriptionGiftEvent(EventValueParser parser) => Parser = parser;
 
-            string amount = eventObject.FindValueByKey<string>("amount");
+        public async Task Process() {
 
-            string icon = "";
-            string subWord = "sub";
-            if (int.TryParse(amount, out int intAmount)) {
-                icon = intAmount >= SettingsManager.Configuration.LargeSubGiftThreshold ? ":small_orange_diamond: " : icon;
-                subWord = intAmount > 1 ? "subs" : subWord;
-            }
-
-            string planName = "";
-            if (Cache.TwitchSubscriptionPlans.TryGetValue(eventObject.FindValueByKey<string>("sub_plan"), out string planLookup)) {
-                planName = $" ({planLookup})";
-            }
+            string icon = Parser.Amount >= SettingsManager.Configuration.LargeSubGiftThreshold ? ":small_orange_diamond: " : "";
+            string subWord = Parser.Amount > 1 ? "subs" : "sub";
 
             // Subscription gift message
-            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{displayName}** gifted **{amount} {subWord}**{planName}");
+            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.From}** gifted **{Parser.Amount} {subWord}** ({Parser.SubscriptionPlan})");
 
             // Event log
-            await DiscordClient.SendEventLogMessageAsync($"Twitch Subscription Gift```{displayName}{Environment.NewLine}" +
-                $"{amount} {subWord}{Environment.NewLine}{Environment.NewLine}" +
-                $" id {eventObject.FindValueByKey<string>("id")}{Environment.NewLine}" +
-                $"_id {eventObject.FindValueByKey<string>("_id")}```");
+            await DiscordClient.SendEventLogMessageAsync($"Twitch Subscription Gift```{Parser.From}{Environment.NewLine}" +
+                $"{Parser.Amount} {subWord}{Environment.NewLine}{Environment.NewLine}" +
+                $" id {Parser.EventLogId}{Environment.NewLine}" +
+                $"_id {Parser.EventLogUnderscoreId}```");
 
         }
 
