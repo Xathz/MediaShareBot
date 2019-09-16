@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <AssemblyName>MediaShareBot</AssemblyName>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <Platforms>x64</Platforms>
     <RootNamespace>MediaShareBot</RootNamespace>

@@ -16,10 +16,10 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
             string icon = Parser.Amount >= SettingsManager.Configuration.LargeBitsDonationThreshold ? ":small_blue_diamond: " : "";
 
             // Bits donation message
-            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.From}** donated **{Parser.Amount} bits**{Parser.MessageCodeBlock}");
+            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.FromUser}** donated **{Parser.Amount} bits**{Parser.MessageFormatted}");
 
             // Event log
-            await DiscordClient.SendEventLogMessageAsync($"Twitch Bits Donation```{Parser.From}{Environment.NewLine}" +
+            await DiscordClient.SendEventLogMessageAsync($"Twitch Bits Donation```{Parser.FromUser}{Environment.NewLine}" +
                 $"{Parser.Amount} bits{Environment.NewLine}" +
                 $"{(!string.IsNullOrWhiteSpace(Parser.Message) ? Parser.Message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
                 $" id {Parser.EventLogId}{Environment.NewLine}" +

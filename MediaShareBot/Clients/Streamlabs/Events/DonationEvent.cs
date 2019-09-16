@@ -16,14 +16,14 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
             string icon = Parser.Amount >= SettingsManager.Configuration.LargeDonationThreshold ? ":small_blue_diamond: " : "";
 
             // Donation message
-            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.From}** donated **{Parser.AmountFormatted}**{Parser.MessageCodeBlock}");
+            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.FromUser}** donated **{Parser.AmountFormatted}**{Parser.MessageFormatted}");
 
             // Event log
-            await DiscordClient.SendEventLogMessageAsync($"Streamlabs Donation```{Parser.From} ({Parser.FromUserId}){Environment.NewLine}" +
+            await DiscordClient.SendEventLogMessageAsync($"Streamlabs Donation```{Parser.FromUser} ({Parser.FromUserId}){Environment.NewLine}" +
                 $"{Parser.AmountFormatted}{Environment.NewLine}" +
                 $"{(!string.IsNullOrWhiteSpace(Parser.Message) ? Parser.Message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
-                $"{(Parser.ContainsMedia() ? Parser.MediaTitle : "<no media>")}{Environment.NewLine}" +
-                $"{(Parser.ContainsMedia() ? $"https://www.youtube.com/watch?v={Parser.MediaId}&t={Parser.MediaStartTime}" : "<no media>")}{Environment.NewLine}{Environment.NewLine}" +
+                $"{(Parser.IsMediaDonation ? Parser.MediaTitle : "<no media>")}{Environment.NewLine}" +
+                $"{(Parser.IsMediaDonation ? $"https://www.youtube.com/watch?v={Parser.MediaId}&t={Parser.MediaStartTime}" : "<no media>")}{Environment.NewLine}{Environment.NewLine}" +
                 $" id {Parser.EventLogId}{Environment.NewLine}" +
                 $"_id {Parser.EventLogUnderscoreId}```");
 

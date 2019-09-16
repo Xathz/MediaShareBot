@@ -6,363 +6,215 @@ namespace MediaShareBot.Clients.Streamlabs {
 
     public class EventValueParser {
 
-        private readonly JObject _EventObject;
-
         /// <summary>
         /// Parse a Streamlabs event for values. All values are sanitized for markdown.
         /// </summary>
-        public EventValueParser(string eventText) => _EventObject = JObject.Parse(eventText);
+        public EventValueParser(string eventText) {
+            JObject eventObject = JObject.Parse(eventText);
 
-        private EventType _Type = EventType.Default;
-        /// <summary>
-        /// Event type.
-        /// </summary>
-        public EventType Type {
-            get {
-                if (_Type != EventType.Default) { return _Type; }
+            // Event type
+            Type = ParseEventType(eventObject.Value<string>("type"));
 
-                _Type = ParseEventType(_EventObject.Value<string>("type"));
-                return _Type;
-            }
-        }
-
-        private string _From = null;
-        /// <summary>
-        /// From user.
-        /// </summary>
-        public string From {
-            get {
-                if (_From != null) { return _From; }
-                string[] keys = new string[] { "from", "display_name", "name" };
+            { // From user
+                string[] keys = new string[] { "from", "gifter_display_name", "gifter", "display_name", "name" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        return _From ?? (_From = value.SanitizeForMarkdown());
-                    }
+                    string value = eventObject.FindValueByKey<string>(key);
+                    if (!string.IsNullOrEmpty(value)) { FromUser = value; }
                 }
-
-                return string.Empty;
             }
-        }
 
-        private string _FromUserId = null;
-        /// <summary>
-        /// From user id (can be incorrect).
-        /// </summary>
-        public string FromUserId {
-            get {
-                if (_FromUserId != null) { return _FromUserId; }
+            { // From user id
                 string[] keys = new string[] { "from_user_id" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        return _FromUserId ?? (_FromUserId = value);
-                    }
+                    string value = eventObject.FindValueByKey<string>(key);
+                    if (!string.IsNullOrEmpty(value)) { FromUserId = value; }
                 }
-
-                return string.Empty;
             }
-        }
 
-        private string _Message = null;
-        /// <summary>
-        /// User message.
-        /// </summary>
-        public string Message {
-            get {
-                if (_Message != null) { return _Message; }
+            { // Message
                 string[] keys = new string[] { "message" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        return _Message ?? (_Message = value.RemoveCheermotes().SanitizeForMarkdown());
-                    }
+                    string value = eventObject.FindValueByKey<string>(key);
+                    if (!string.IsNullOrEmpty(value)) { Message = value; }
                 }
 
-                return string.Empty;
+                MessageFormatted = !string.IsNullOrWhiteSpace(Message) ? $"```{Message}```" : Message;
             }
-        }
 
-        private string _MessageCodeBlock = null;
-        /// <summary>
-        /// User message formatted in a markdown code block.
-        /// </summary>
-        public string MessageCodeBlock {
-            get {
-                if (_MessageCodeBlock != null) { return _MessageCodeBlock; }
-
-                if (!string.IsNullOrEmpty(Message)) {
-                    return _MessageCodeBlock ?? (_MessageCodeBlock = $"```{Message}```");
-                }
-
-                return string.Empty;
-            }
-        }
-
-        private decimal? _Amount = null;
-        /// <summary>
-        /// Amount.
-        /// </summary>
-        public decimal Amount {
-            get {
-                if (_Amount.HasValue) { return _Amount.Value; }
+            { // Amount
                 string[] keys = new string[] { "amount" };
 
                 foreach (string key in keys) {
-                    decimal? value = _EventObject.FindValueByKey<decimal>(key);
-                    if (value.HasValue) {
-                        return _Amount ?? (_Amount = value).Value;
-                    }
+                    string value = eventObject.FindValueByKey<string>(key);
+                    if (decimal.TryParse(value, out decimal decValue)) { Amount = decValue; }
                 }
-
-                return 0;
             }
-        }
 
-        private string _AmountFormatted = null;
-        /// <summary>
-        /// Formatted amount.
-        /// </summary>
-        public string AmountFormatted {
-            get {
-                if (_AmountFormatted != null) { return _AmountFormatted; }
+            { // Amount formatted
                 string[] keys = new string[] { "formattedAmount", "formatted_amount" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        return _AmountFormatted ?? (_AmountFormatted = value.SanitizeForMarkdown());
-                    }
+                    string value = eventObject.FindValueByKey<string>(key);
+                    if (!string.IsNullOrEmpty(value)) { AmountFormatted = value; }
                 }
-
-                return string.Empty;
             }
-        }
 
-        private int? _Months = null;
-        /// <summary>
-        /// Month(s) subscribed.
-        /// </summary>
-        public int Months {
-            get {
-                if (_Months.HasValue) { return _Months.Value; }
+            { // Months
                 string[] keys = new string[] { "months" };
 
                 foreach (string key in keys) {
-                    int? value = _EventObject.FindValueByKey<int>(key);
-                    if (value.HasValue) {
-                        return _Months ?? (_Months = value).Value;
-                    }
+                    string value = eventObject.FindValueByKey<string>(key);
+                    if (int.TryParse(value, out int intValue)) { Months = intValue; }
                 }
-
-                return 0;
             }
-        }
 
-        private string _SubscriptionPlan = null;
-        /// <summary>
-        /// Subscription plan.
-        /// </summary>
-        public string SubscriptionPlan {
-            get {
-                if (_SubscriptionPlan != null) { return _SubscriptionPlan; }
+            { // Subscription plan
                 string[] keys = new string[] { "sub_plan" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByKey<string>(key);
+                    string value = eventObject.FindValueByKey<string>(key);
                     if (!string.IsNullOrEmpty(value)) {
-                        if (Cache.TwitchSubscriptionPlans.TryGetValue(value, out string planLookup)) {
-                            return _SubscriptionPlan ?? (_SubscriptionPlan = planLookup);
-                        }
+                        if (Cache.TwitchSubscriptionPlans.TryGetValue(value, out string plan)) { SubscriptionPlan = plan; }
                     }
                 }
-
-                return string.Empty;
             }
-        }
 
-        #region Media Share
+            { // Is the subscription a gift?
+                IsSubscriptionGift = (eventObject.FindValueByKey<string>("sub_type") == "subgift") ? true : false;
+            }
 
-        /// <summary>
-        /// Does this object contain media?
-        /// </summary>
-        public bool ContainsMedia() => !string.IsNullOrEmpty(MediaId);
-
-        private string _MediaId = null;
-        /// <summary>
-        /// Id of the media.
-        /// </summary>
-        public string MediaId {
-            get {
-                if (_MediaId != null) { return _MediaId; }
+            { // Media id
                 string[] keys = new string[] { "id" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByParentAndKey<string>("media", key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        return _MediaId ?? (_MediaId = value);
-                    }
+                    string value = eventObject.FindValueByParentAndKey<string>("media", key);
+                    if (!string.IsNullOrEmpty(value)) { MediaId = value; }
                 }
 
-                return string.Empty;
+                IsMediaDonation = !string.IsNullOrEmpty(MediaId) ? true : false;
             }
-        }
 
-        private string _MediaTitle = null;
-        /// <summary>
-        /// Media title.
-        /// </summary>
-        public string MediaTitle {
-            get {
-                if (_MediaTitle != null) { return _MediaTitle; }
+            { // Media title
                 string[] keys = new string[] { "title" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByParentAndKey<string>("media", key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        return _MediaTitle ?? (_MediaTitle = value.SanitizeForMarkdown());
-                    }
+                    string value = eventObject.FindValueByParentAndKey<string>("media", key);
+                    if (!string.IsNullOrEmpty(value)) { MediaTitle = value; }
                 }
-
-                return string.Empty;
             }
-        }
 
-        private int? _MediaStartTime = null;
-        /// <summary>
-        /// Media start time.
-        /// </summary>
-        public int MediaStartTime {
-            get {
-                if (_MediaStartTime.HasValue) { return _MediaStartTime.Value; }
+            { // Media start time
                 string[] keys = new string[] { "start_time" };
 
                 foreach (string key in keys) {
-                    int? value = _EventObject.FindValueByParentAndKey<int>("media", key);
-                    if (value.HasValue) {
-                        return _MediaStartTime ?? (_MediaStartTime = value).Value;
-                    }
+                    string value = eventObject.FindValueByParentAndKey<string>("media", key);
+                    if (int.TryParse(value, out int intValue)) { MediaStartTime = intValue; }
                 }
-
-                return 0;
             }
-        }
 
-        private string _MediaChannelId = null;
-        /// <summary>
-        /// Media channel id.
-        /// </summary>
-        public string MediaChannelId {
-            get {
-                if (_MediaChannelId != null) { return _MediaChannelId; }
+            { // Media channel id
                 string[] keys = new string[] { "channelId" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByParentAndKey<string>("snippet", key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        return _MediaChannelId ?? (_MediaChannelId = value.SanitizeForMarkdown());
-                    }
+                    string value = eventObject.FindValueByParentAndKey<string>("snippet", key);
+                    if (!string.IsNullOrEmpty(value)) { MediaChannelId = value; }
                 }
-
-                return string.Empty;
             }
-        }
 
-        private string _MediaChannelTitle = null;
-        /// <summary>
-        /// Media channel title.
-        /// </summary>
-        public string MediaChannelTitle {
-            get {
-                if (_MediaChannelTitle != null) { return _MediaChannelTitle; }
+            { // Media channel title
                 string[] keys = new string[] { "channelTitle" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByParentAndKey<string>("snippet", key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        return _MediaChannelTitle ?? (_MediaChannelTitle = value.SanitizeForMarkdown());
-                    }
+                    string value = eventObject.FindValueByParentAndKey<string>("snippet", key);
+                    if (!string.IsNullOrEmpty(value)) { MediaChannelTitle = value; }
                 }
-
-                return string.Empty;
             }
-        }
 
-        private string _MediaThumbnailUrl = null;
-        /// <summary>
-        /// Best available media thumbnail url.
-        /// </summary>
-        public string MediaThumbnailUrl {
-            get {
-                if (_MediaThumbnailUrl != null) { return _MediaThumbnailUrl; }
-
-                // 1280x720
-                string maxRes = _EventObject.FindValueByParentAndKey<string>("maxres", "url");
-                if (!string.IsNullOrEmpty(maxRes)) { return _MediaThumbnailUrl ?? (_MediaThumbnailUrl = maxRes); }
-
-                // 640x480
-                string standardRes = _EventObject.FindValueByParentAndKey<string>("standard", "url");
-                if (!string.IsNullOrEmpty(standardRes)) { return _MediaThumbnailUrl ?? (_MediaThumbnailUrl = standardRes); }
-
-                // 480x360
-                string highRes = _EventObject.FindValueByParentAndKey<string>("high", "url");
-                if (!string.IsNullOrEmpty(highRes)) { return _MediaThumbnailUrl ?? (_MediaThumbnailUrl = highRes); }
-
-                // 320x180
-                string mediumRes = _EventObject.FindValueByParentAndKey<string>("medium", "url");
-                if (!string.IsNullOrEmpty(mediumRes)) { return _MediaThumbnailUrl ?? (_MediaThumbnailUrl = mediumRes); }
-
-                // 120x90
-                string defaultRes = _EventObject.FindValueByParentAndKey<string>("default", "url");
-                if (!string.IsNullOrEmpty(defaultRes)) { return _MediaThumbnailUrl ?? (_MediaThumbnailUrl = defaultRes); }
-
-                return Constants.YouTubeLogoUrl;
-            }
-        }
-
-        #endregion
-
-        #region Event Log / Debug
-
-        private string _EventLogId = null;
-        public string EventLogId {
-            get {
-                if (_EventLogId != null) { return _EventLogId; }
+            { // Event log id
                 string[] keys = new string[] { "id" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        return _EventLogId ?? (_EventLogId = value);
-                    }
+                    string value = eventObject.FindValueByKey<string>(key);
+                    if (!string.IsNullOrEmpty(value)) { EventLogId = value; }
                 }
-
-                return string.Empty;
             }
-        }
 
-        private string _EventLogUnderscoreId = null;
-        public string EventLogUnderscoreId {
-            get {
-                if (_EventLogUnderscoreId != null) { return _EventLogUnderscoreId; }
+            { // Event log _id
                 string[] keys = new string[] { "_id" };
 
                 foreach (string key in keys) {
-                    string value = _EventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        return _EventLogUnderscoreId ?? (_EventLogUnderscoreId = value);
-                    }
+                    string value = eventObject.FindValueByKey<string>(key);
+                    if (!string.IsNullOrEmpty(value)) { EventLogUnderscoreId = value; }
                 }
-
-                return string.Empty;
             }
+
+            { // Media thumbnail url
+
+                string maxRes = eventObject.FindValueByParentAndKey<string>("maxres", "url"); // 1280x720
+                string standardRes = eventObject.FindValueByParentAndKey<string>("standard", "url"); // 640x480
+                string highRes = eventObject.FindValueByParentAndKey<string>("high", "url"); // 480x360
+                string mediumRes = eventObject.FindValueByParentAndKey<string>("medium", "url"); // 320x180
+                string defaultRes = eventObject.FindValueByParentAndKey<string>("default", "url"); // 120x90
+
+                if (!string.IsNullOrEmpty(maxRes)) {
+                    MediaThumbnailUrl = maxRes;
+                } else if (!string.IsNullOrEmpty(standardRes)) {
+                    MediaThumbnailUrl = standardRes;
+                } else if (!string.IsNullOrEmpty(highRes)) {
+                    MediaThumbnailUrl = highRes;
+                } else if (!string.IsNullOrEmpty(mediumRes)) {
+                    MediaThumbnailUrl = mediumRes;
+                } else if (!string.IsNullOrEmpty(defaultRes)) {
+                    MediaThumbnailUrl = defaultRes;
+                } else {
+                    MediaThumbnailUrl = Constants.YouTubeLogoUrl;
+                }
+            }
+
         }
 
-        #endregion
+        public EventType Type { get; private set; }
+
+        public string FromUser { get; private set; }
+
+        public string FromUserId { get; private set; }
+
+        public string Message { get; private set; }
+
+        public string MessageFormatted { get; private set; }
+
+        public decimal Amount { get; private set; }
+
+        public string AmountFormatted { get; private set; }
+
+        public int Months { get; private set; }
+
+        public string SubscriptionPlan { get; private set; }
+
+        public bool IsSubscriptionGift { get; private set; }
+
+        public string MediaId { get; private set; }
+
+        public bool IsMediaDonation { get; private set; }
+
+        public string MediaTitle { get; private set; }
+
+        public int MediaStartTime { get; private set; }
+
+        public string MediaChannelId { get; private set; }
+
+        public string MediaChannelTitle { get; private set; }
+
+        public string EventLogId { get; private set; }
+
+        public string EventLogUnderscoreId { get; private set; }
+
+        public string MediaThumbnailUrl { get; private set; }
 
     }
 
 }
+

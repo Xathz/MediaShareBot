@@ -170,8 +170,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
                 }
 
-            } catch (StreamlabsParseTypeException ex) {
-                LoggingManager.Log.Warn(ex);
+            } catch (StreamlabsParseTypeException) { // Swallow
             } catch (Exception ex) {
                 LoggingManager.Log.Error(ex);
             }
