@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MediaShareBot.Clients.Discord;
 using MediaShareBot.Settings;
 
@@ -19,13 +18,16 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
             await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.FromUser}** donated **{Parser.AmountFormatted}**{Parser.MessageFormatted}");
 
             // Event log
-            await DiscordClient.SendEventLogMessageAsync($"Streamlabs Donation```{Parser.FromUser} ({Parser.FromUserId}){Environment.NewLine}" +
-                $"{Parser.AmountFormatted}{Environment.NewLine}" +
-                $"{(!string.IsNullOrWhiteSpace(Parser.Message) ? Parser.Message : "<no message>")}{Environment.NewLine}{Environment.NewLine}" +
-                $"{(Parser.IsMediaDonation ? Parser.MediaTitle : "<no media>")}{Environment.NewLine}" +
-                $"{(Parser.IsMediaDonation ? $"https://www.youtube.com/watch?v={Parser.MediaId}&t={Parser.MediaStartTime}" : "<no media>")}{Environment.NewLine}{Environment.NewLine}" +
-                $" id {Parser.EventLogId}{Environment.NewLine}" +
-                $"_id {Parser.EventLogUnderscoreId}```");
+            await DiscordClient.SendEventLogMessageAsync("Streamlabs Donation",
+                $"{Parser.FromUser} ({Parser.FromUserId})",
+                $"{Parser.AmountFormatted}",
+                $"{(!string.IsNullOrEmpty(Parser.Message) ? Parser.Message : "<no message>")}",
+                "",
+                $"{(Parser.IsMediaDonation ? Parser.MediaTitle : "<no media>")}",
+                $"{(Parser.IsMediaDonation ? $"https://www.youtube.com/watch?v={Parser.MediaId}&t={Parser.MediaStartTime}" : "<no media>")}",
+                "",
+                $" id {Parser.EventLogId}",
+                $"_id {Parser.EventLogUnderscoreId}");
 
         }
 

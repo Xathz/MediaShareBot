@@ -38,10 +38,10 @@ namespace MediaShareBot.Clients.Streamlabs {
 
                 foreach (string key in keys) {
                     string value = eventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) { Message = value; }
+                    if (!string.IsNullOrEmpty(value)) { Message = value.Trim(); }
                 }
 
-                MessageFormatted = !string.IsNullOrWhiteSpace(Message) ? $"```{Message}```" : Message;
+                MessageFormatted = !string.IsNullOrEmpty(Message) ? $"```{Message.RemoveCheermotes().SanitizeForMarkdown()}```" : Message;
             }
 
             { // Amount

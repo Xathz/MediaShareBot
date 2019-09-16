@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MediaShareBot.Clients.Discord;
 using MediaShareBot.Settings;
 
@@ -20,10 +19,12 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
             await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.FromUser}** gifted **{Parser.Amount} {subWord}** ({Parser.SubscriptionPlan})");
 
             // Event log
-            await DiscordClient.SendEventLogMessageAsync($"Twitch Subscription Gift```{Parser.FromUser}{Environment.NewLine}" +
-                $"{Parser.Amount} {subWord}{Environment.NewLine}{Environment.NewLine}" +
-                $" id {Parser.EventLogId}{Environment.NewLine}" +
-                $"_id {Parser.EventLogUnderscoreId}```");
+            await DiscordClient.SendEventLogMessageAsync("Twitch Subscription Gift",
+                $"{Parser.FromUser}",
+                $"{Parser.Amount} {subWord}",
+                "",
+                $" id {Parser.EventLogId}",
+                $"_id {Parser.EventLogUnderscoreId}");
 
         }
 

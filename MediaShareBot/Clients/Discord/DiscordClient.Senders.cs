@@ -7,13 +7,13 @@ namespace MediaShareBot.Clients.Discord {
 
     public static partial class DiscordClient {
 
-        public static async Task SendEventLogMessageAsync(string message) {
+        public static async Task SendEventLogMessageAsync(string title, params string[] message) {
             if (SettingsManager.Configuration.DiscordChannels.EventLog == 0) { return; }
-            if (!SentMessagesCache.Add(message)) { return; }
+            if (!SentMessagesCache.Add($"{title} {message}")) { return; }
 
             try {
                 if (_DiscordClient.GetChannel(SettingsManager.Configuration.DiscordChannels.EventLog) is IMessageChannel channel) {
-                    await channel.SendMessageAsync(message);
+                    await channel.SendMessageAsync($"● {title}```{Environment.NewLine}{string.Join(Environment.NewLine, message)}```");
                 }
 
             } catch (Exception ex) {
