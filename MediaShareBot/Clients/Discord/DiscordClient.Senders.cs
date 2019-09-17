@@ -22,8 +22,7 @@ namespace MediaShareBot.Clients.Discord {
         }
 
         public static async Task SendMediaShareMessageAsync(string from, string message, string amount, string donatedAgo,
-            string mediaThumbnailUrl, string mediaUrl, string mediaViews, string mediaTitle,
-            string mediaChannelUrl, string mediaChannelTitle) {
+            string mediaThumbnailUrl, string mediaUrl, string mediaViews, string mediaTitle, string mediaChannelUrl, string mediaChannelTitle) {
 
             if (SettingsManager.Configuration.DiscordChannels.MediaShare == 0) { return; }
             if (!SentMessagesCache.Add(from, message, amount)) { return; }
@@ -48,7 +47,9 @@ namespace MediaShareBot.Clients.Discord {
 
                     builder.AddField("Views", mediaViews, true);
 
-                    builder.AddField("Message", message);
+                    if (!string.IsNullOrWhiteSpace(message)) {
+                        builder.AddField("Message", message);
+                    }
 
                     builder.Footer = new EmbedFooterBuilder() {
                         Text = $"Donated {donatedAgo}"

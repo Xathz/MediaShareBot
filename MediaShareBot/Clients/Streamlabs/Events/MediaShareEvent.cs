@@ -1,21 +1,20 @@
 ﻿using System.Threading.Tasks;
+using Humanizer;
 using MediaShareBot.Clients.Discord;
-using MediaShareBot.Settings;
 
 namespace MediaShareBot.Clients.Streamlabs.Events {
 
-    public class DonationEvent : IStreamlabsEvent {
+    public class MediaShareEvent : IStreamlabsEvent {
 
         public EventValueParser Parser { get; private set; }
 
-        public DonationEvent(EventValueParser parser) => Parser = parser;
+        public MediaShareEvent(EventValueParser parser) => Parser = parser;
 
         public async Task Process() {
 
-            string icon = Parser.Amount >= SettingsManager.Configuration.LargeDonationThreshold ? ":small_blue_diamond: " : "";
-
-            // Donation message
-            await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.FromUser}** donated **{Parser.AmountFormatted}**{Parser.MessageFormatted}");
+            // Media share message
+            await DiscordClient.SendMediaShareMessageAsync(Parser.FromUser, Parser.Message, Parser.AmountFormatted, Parser.CreatedAt.Humanize(),
+                Parser.MediaThumbnailUrl, Parser.MediaUrl, Parser.MediaViews, Parser.MediaTitle, Parser.MediaChannelUrl, Parser.MediaChannelTitle);
 
             // Event log
             await DiscordClient.SendEventLogMessageAsync("Streamlabs Donation",
@@ -23,8 +22,8 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
                 $"{Parser.AmountFormatted}",
                 $"{(!string.IsNullOrEmpty(Parser.Message) ? Parser.Message : "<no message>")}",
                 "",
-                $"{(Parser.IsMediaDonation ? Parser.MediaTitle : "<no media>")}",
-                $"{(Parser.IsMediaDonation ? Parser.MediaUrl : "<no media>")}",
+                $"{Parser.MediaTitle}",
+                $"{Parser.MediaUrl}",
                 "",
                 $" id {Parser.EventLogId}",
                 $"_id {Parser.EventLogUnderscoreId}");

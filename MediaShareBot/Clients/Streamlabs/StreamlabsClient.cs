@@ -146,26 +146,35 @@ namespace MediaShareBot.Clients.Streamlabs {
         private static async Task ProcessEvent(string eventText) {
 
 #if DEBUG
-            Console.WriteLine($"{DateTime.Now.ToString(Constants.DateTimeFormatFull)}: {eventText}");
-            Console.WriteLine("================");
+            Console.WriteLine($"==== {DateTime.Now.ToString(Constants.DateTimeFormatFull)}");
+            Console.WriteLine(eventText);
+            Console.WriteLine("====================");
 #endif
 
             try {
                 EventValueParser parser = new EventValueParser(eventText);
 
-                if (parser.Type == EventType.Donation) {
+                if (parser.EventType == EventType.AlertPlaying && parser.IsMediaDonation) {
+                    await new MediaShareEvent(parser).Process();
+
+                } else if (parser.EventType == EventType.MediaShare && parser.MediaShareType == MediaShareType.Play && parser.IsMediaDonation) {
+                    await new MediaShareEvent(parser).Process();
+
+                }
+
+                if (parser.EventType == EventType.Donation) {
                     await new DonationEvent(parser).Process();
 
-                } else if (parser.Type == EventType.BitDonation) {
+                } else if (parser.EventType == EventType.BitDonation) {
                     await new BitDonationEvent(parser).Process();
 
-                } else if (parser.Type == EventType.Subscription) {
+                } else if (parser.EventType == EventType.Subscription) {
                     await new SubscriptionEvent(parser).Process();
 
-                } else if (parser.Type == EventType.ReSubscription) {
+                } else if (parser.EventType == EventType.ReSubscription) {
                     await new SubscriptionEvent(parser).Process();
 
-                } else if (parser.Type == EventType.SubscriptionGift) {
+                } else if (parser.EventType == EventType.SubscriptionGift) {
                     await new SubscriptionGiftEvent(parser).Process();
 
                 }

@@ -1,4 +1,6 @@
-﻿using MediaShareBot.Extensions;
+﻿using System;
+using System.Globalization;
+using MediaShareBot.Extensions;
 using Newtonsoft.Json.Linq;
 using static MediaShareBot.Clients.Streamlabs.Enums;
 
@@ -12,45 +14,42 @@ namespace MediaShareBot.Clients.Streamlabs {
         public EventValueParser(string eventText) {
             JObject eventObject = JObject.Parse(eventText);
 
-            // Event type
-            Type = ParseEventType(eventObject.Value<string>("type"));
+            // Event types
+            EventType = ParseEventType(eventObject.Value<string>("type"));
+            MediaShareType = ParseMediaShareType(eventObject.FindValueByKey<string>("event"));
+            AlertPlayingType = ParseAlertPlayingType(eventObject.FindValueByKey<string>("action"));
+
+            { // Created at date time
+                string[] keys = new string[] { "createdAt", "created_at" };
+
+                foreach (string key in keys) {
+                    string value = eventObject.FindValueByKey<string>(key);
+                    if (DateTimeOffset.TryParseExact($"{value} Z", "YYYY-MM-dd HH:mm:ss Z", new CultureInfo("en-US"), DateTimeStyles.None, out DateTimeOffset result)) {
+                        CreatedAt = result;
+                    }
+                }
+            }
 
             { // From user
                 string[] keys = new string[] { "from", "gifter_display_name", "gifter", "display_name", "name" };
 
                 foreach (string key in keys) {
                     string value = eventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) { FromUser = value; }
-                }
-            }
-
-            { // From user id
-                string[] keys = new string[] { "from_user_id" };
-
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) { FromUserId = value; }
+                    if (!string.IsNullOrEmpty(value)) { FromUser = value; break; }
                 }
             }
 
             { // Message
-                string[] keys = new string[] { "message" };
-
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) { Message = value.Trim(); }
+                string value = eventObject.FindValueByKey<string>("message");
+                if (!string.IsNullOrEmpty(value)) {
+                    Message = value.Trim();
+                    MessageFormatted = $"```{Message.RemoveCheermotes().SanitizeForMarkdown()}```";
                 }
-
-                MessageFormatted = !string.IsNullOrEmpty(Message) ? $"```{Message.RemoveCheermotes().SanitizeForMarkdown()}```" : Message;
             }
 
             { // Amount
-                string[] keys = new string[] { "amount" };
-
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByKey<string>(key);
-                    if (decimal.TryParse(value, out decimal decValue)) { Amount = decValue; }
-                }
+                string value = eventObject.FindValueByKey<string>("amount");
+                if (decimal.TryParse(value, out decimal result)) { Amount = result; }
             }
 
             { // Amount formatted
@@ -63,96 +62,63 @@ namespace MediaShareBot.Clients.Streamlabs {
             }
 
             { // Months
-                string[] keys = new string[] { "months" };
-
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByKey<string>(key);
-                    if (int.TryParse(value, out int intValue)) { Months = intValue; }
-                }
+                string value = eventObject.FindValueByKey<string>("months");
+                if (int.TryParse(value, out int result)) { Months = result; }
             }
 
             { // Subscription plan
-                string[] keys = new string[] { "sub_plan" };
-
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) {
-                        if (Cache.TwitchSubscriptionPlans.TryGetValue(value, out string plan)) { SubscriptionPlan = plan; }
-                    }
+                string value = eventObject.FindValueByKey<string>("sub_plan");
+                if (!string.IsNullOrEmpty(value)) {
+                    if (Cache.TwitchSubscriptionPlans.TryGetValue(value, out string result)) { SubscriptionPlan = result; }
                 }
             }
+
 
             { // Is the subscription a gift?
                 IsSubscriptionGift = (eventObject.FindValueByKey<string>("sub_type") == "subgift") ? true : false;
             }
 
             { // Media id
-                string[] keys = new string[] { "id" };
-
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByParentAndKey<string>("media", key);
-                    if (!string.IsNullOrEmpty(value)) { MediaId = value; }
+                string value = eventObject.FindValueByParentAndKey<string>("media", "id");
+                if (!string.IsNullOrEmpty(value)) {
+                    MediaId = value;
+                    IsMediaDonation = true;
+                } else {
+                    IsMediaDonation = false;
                 }
-
-                IsMediaDonation = !string.IsNullOrEmpty(MediaId) ? true : false;
             }
 
             { // Media title
-                string[] keys = new string[] { "title" };
+                string value = eventObject.FindValueByParentAndKey<string>("media", "title");
+                if (!string.IsNullOrEmpty(value)) { MediaTitle = value; }
+            }
 
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByParentAndKey<string>("media", key);
-                    if (!string.IsNullOrEmpty(value)) { MediaTitle = value; }
-                }
+            { // Media views
+                string value = eventObject.FindValueByParentAndKey<string>("statistics", "viewCount");
+                if (int.TryParse(value, out int result)) { MediaViews = result.ToString("N0"); }
             }
 
             { // Media start time
-                string[] keys = new string[] { "start_time" };
+                string value = eventObject.FindValueByParentAndKey<string>("media", "start_time");
+                if (int.TryParse(value, out int result)) { MediaStartTime = result; }
 
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByParentAndKey<string>("media", key);
-                    if (int.TryParse(value, out int intValue)) { MediaStartTime = intValue; }
-                }
+                MediaUrl = $"https://www.youtube.com/watch?v={MediaId}&t={MediaStartTime}";
             }
 
             { // Media channel id
-                string[] keys = new string[] { "channelId" };
-
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByParentAndKey<string>("snippet", key);
-                    if (!string.IsNullOrEmpty(value)) { MediaChannelId = value; }
+                string value = eventObject.FindValueByParentAndKey<string>("snippet", "channelId");
+                if (!string.IsNullOrEmpty(value)) {
+                    MediaChannelId = value;
+                    MediaChannelUrl = $"https://www.youtube.com/channel/{MediaChannelId}";
                 }
             }
 
             { // Media channel title
-                string[] keys = new string[] { "channelTitle" };
-
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByParentAndKey<string>("snippet", key);
-                    if (!string.IsNullOrEmpty(value)) { MediaChannelTitle = value; }
-                }
-            }
-
-            { // Event log id
-                string[] keys = new string[] { "id" };
-
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) { EventLogId = value; }
-                }
-            }
-
-            { // Event log _id
-                string[] keys = new string[] { "_id" };
-
-                foreach (string key in keys) {
-                    string value = eventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) { EventLogUnderscoreId = value; }
-                }
+                string value = eventObject.FindValueByParentAndKey<string>("snippet", "channelTitle");
+                if (!string.IsNullOrEmpty(value)) { MediaChannelTitle = value; }
             }
 
             { // Media thumbnail url
-
                 string maxRes = eventObject.FindValueByParentAndKey<string>("maxres", "url"); // 1280x720
                 string standardRes = eventObject.FindValueByParentAndKey<string>("standard", "url"); // 640x480
                 string highRes = eventObject.FindValueByParentAndKey<string>("high", "url"); // 480x360
@@ -174,13 +140,27 @@ namespace MediaShareBot.Clients.Streamlabs {
                 }
             }
 
+            { // Event log id
+                string value = eventObject.FindValueByKey<string>("id");
+                if (!string.IsNullOrEmpty(value)) { EventLogId = value; }
+            }
+
+            { // Event log _id
+                string value = eventObject.FindValueByKey<string>("_id");
+                if (!string.IsNullOrEmpty(value)) { EventLogUnderscoreId = value; }
+            }
+
         }
 
-        public EventType Type { get; private set; }
+        public EventType EventType { get; private set; }
+
+        public MediaShareType MediaShareType { get; private set; }
+
+        public AlertPlayingType AlertPlayingType { get; private set; }
+
+        public DateTimeOffset CreatedAt { get; private set; }
 
         public string FromUser { get; private set; }
-
-        public string FromUserId { get; private set; }
 
         public string Message { get; private set; }
 
@@ -196,23 +176,29 @@ namespace MediaShareBot.Clients.Streamlabs {
 
         public bool IsSubscriptionGift { get; private set; }
 
-        public string MediaId { get; private set; }
-
         public bool IsMediaDonation { get; private set; }
+
+        public string MediaUrl { get; private set; }
+
+        public string MediaId { get; private set; }
 
         public string MediaTitle { get; private set; }
 
+        public string MediaViews { get; private set; }
+
         public int MediaStartTime { get; private set; }
+
+        public string MediaChannelUrl { get; private set; }
 
         public string MediaChannelId { get; private set; }
 
         public string MediaChannelTitle { get; private set; }
 
+        public string MediaThumbnailUrl { get; private set; }
+
         public string EventLogId { get; private set; }
 
         public string EventLogUnderscoreId { get; private set; }
-
-        public string MediaThumbnailUrl { get; private set; }
 
     }
 

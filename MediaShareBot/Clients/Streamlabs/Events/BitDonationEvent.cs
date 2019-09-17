@@ -19,7 +19,8 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
             await DiscordClient.SendSubOrDonationMessageAsync($"{icon}**{Parser.FromUser}** donated **{Parser.Amount} {bitWord}* *{Parser.MessageFormatted}");
 
             // Event log
-            await DiscordClient.SendEventLogMessageAsync("Twitch Bits Donation", $"{Parser.FromUser}",
+            await DiscordClient.SendEventLogMessageAsync("Twitch Bits Donation",
+                $"{Parser.FromUser}",
                 $"{Parser.Amount} {bitWord}",
                 $"{(!string.IsNullOrEmpty(Parser.Message) ? Parser.Message : "<no message>")}",
                 "",

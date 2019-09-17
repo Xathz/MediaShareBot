@@ -5,6 +5,8 @@ namespace MediaShareBot.Clients.Streamlabs {
     public static class Enums {
 
         public static EventType ParseEventType(string eventType) {
+            if (string.IsNullOrEmpty(eventType)) { return EventType.Default; }
+
             switch (eventType.ToLowerInvariant()) {
                 // Streamlabs alerts
                 case "alertplaying": return EventType.AlertPlaying;
@@ -96,30 +98,98 @@ namespace MediaShareBot.Clients.Streamlabs {
             SeparatedLayout
         }
 
+        public static MediaShareType ParseMediaShareType(string mediaShareType) {
+            if (string.IsNullOrEmpty(mediaShareType)) { return MediaShareType.Default; }
+
+            switch (mediaShareType.ToLowerInvariant()) {
+                // Video controls
+                case "play": return MediaShareType.Play;
+                case "pause": return MediaShareType.Pause;
+                case "next": return MediaShareType.Next;
+                case "previous": return MediaShareType.Previous;
+                case "replay": return MediaShareType.Replay;
+                case "seek": return MediaShareType.Seek;
+
+                // Alert control
+                case "pop": return MediaShareType.Pop;
+                case "show": return MediaShareType.Show;
+                case "hide": return MediaShareType.Hide;
+
+                // Queue moderation
+                case "move": return MediaShareType.Move;
+                case "accept": return MediaShareType.Accept;
+                case "decline": return MediaShareType.Decline;
+                case "ban": return MediaShareType.Ban;
+
+                // General events
+                case "newmaster": return MediaShareType.NewMaster;
+                case "newpendingmedia": return MediaShareType.NewPendingMedia;
+                case "newstreamermedia": return MediaShareType.NewStreamerMedia;
+
+                default: throw new StreamlabsParseTypeException($"Failed to parse media share type. Default reached. Supplied string: {mediaShareType}");
+            }
+        }
+
         public enum MediaShareType {
+            Default = 0, // Better than nullable
+
+            // Video controls
             Play,
             Pause,
             Next,
             Previous,
             Replay,
             Seek,
-            NewMaster,
-            NewPendingMedia,
-            NewStreamerMedia,
+
+            // Alert control
             Pop,
             Show,
             Hide,
+
+            // Queue moderation
             Move,
             Accept,
             Decline,
-            Ban
+            Ban,
+
+            // General events
+            NewMaster,
+            NewPendingMedia,
+            NewStreamerMedia
+        }
+
+        public static AlertPlayingType ParseAlertPlayingType(string alertPlayingType) {
+            if (string.IsNullOrEmpty(alertPlayingType)) { return AlertPlayingType.Default; }
+
+            switch (alertPlayingType.ToLowerInvariant()) {
+                // Donations
+                case "donation": return AlertPlayingType.Donation;
+                case "bits": return AlertPlayingType.BitDonation;
+
+                // Subscriptions
+                case "subscription": return AlertPlayingType.Subscription;
+                case "submysterygift": return AlertPlayingType.SubscriptionGift;
+
+                // Twitch other
+                case "pledge": return AlertPlayingType.Pledge;
+                case "raid": return AlertPlayingType.Raid;
+
+                default: throw new StreamlabsParseTypeException($"Failed to parse alert playing type. Default reached. Supplied string: {alertPlayingType}");
+            }
         }
 
         public enum AlertPlayingType {
+            Default = 0, // Better than nullable
+
+            // Donations
             Donation,
             BitDonation,
+
+            // Subscriptions
             Subscription,
             SubscriptionGift,
+
+            // Twitch other
             Pledge,
             Raid
         }
