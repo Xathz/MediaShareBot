@@ -26,7 +26,6 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
                 $"{Parser.Months} {monthWord}",
                 $"{(!string.IsNullOrEmpty(Parser.Message) ? Parser.Message : "<no message>")}",
                 "",
-                $" id {Parser.EventLogId}",
                 $"_id {Parser.EventLogUnderscoreId}");
 
         }

@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Humanizer;
 using MediaShareBot.Clients.Discord;
 
 namespace MediaShareBot.Clients.Streamlabs.Events {
@@ -13,7 +12,7 @@ namespace MediaShareBot.Clients.Streamlabs.Events {
         public async Task Process() {
 
             // Media share message
-            await DiscordClient.SendMediaShareMessageAsync(Parser.FromUser, Parser.Message, Parser.AmountFormatted, Parser.CreatedAt.Humanize(),
+            await DiscordClient.SendMediaShareMessageAsync(Parser.FromUser, Parser.Message, Parser.AmountFormatted, Parser.DateTime,
                 Parser.MediaThumbnailUrl, Parser.MediaUrl, Parser.MediaViews, Parser.MediaTitle, Parser.MediaChannelUrl, Parser.MediaChannelTitle);
 
             // Event log

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using MediaShareBot.Extensions;
 using Newtonsoft.Json.Linq;
 using static MediaShareBot.Clients.Streamlabs.Enums;
@@ -24,9 +23,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
                 foreach (string key in keys) {
                     string value = eventObject.FindValueByKey<string>(key);
-                    if (DateTimeOffset.TryParseExact($"{value} Z", "YYYY-MM-dd HH:mm:ss Z", new CultureInfo("en-US"), DateTimeStyles.None, out DateTimeOffset result)) {
-                        CreatedAt = result;
-                    }
+                    if (DateTime.TryParse(value, out DateTime result)) { DateTime = result; break; }
                 }
             }
 
@@ -94,14 +91,12 @@ namespace MediaShareBot.Clients.Streamlabs {
             }
 
             { // Media views
-                string value = eventObject.FindValueByParentAndKey<string>("statistics", "viewCount");
-                if (int.TryParse(value, out int result)) { MediaViews = result.ToString("N0"); }
+                string value = eventObject.FindValueByParentAndKey<string>("statistics", "viewCount", "0");
+                if (int.TryParse(value, out int result)) { MediaViews = result; }
             }
 
             { // Media start time
-                string value = eventObject.FindValueByParentAndKey<string>("media", "start_time");
-                if (int.TryParse(value, out int result)) { MediaStartTime = result; }
-
+                MediaStartTime = eventObject.FindValueByParentAndKey<string>("media", "start_time", "0");
                 MediaUrl = $"https://www.youtube.com/watch?v={MediaId}&t={MediaStartTime}";
             }
 
@@ -158,7 +153,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
         public AlertPlayingType AlertPlayingType { get; private set; }
 
-        public DateTimeOffset CreatedAt { get; private set; }
+        public DateTime DateTime { get; private set; }
 
         public string FromUser { get; private set; }
 
@@ -184,9 +179,9 @@ namespace MediaShareBot.Clients.Streamlabs {
 
         public string MediaTitle { get; private set; }
 
-        public string MediaViews { get; private set; }
+        public int MediaViews { get; private set; }
 
-        public int MediaStartTime { get; private set; }
+        public string MediaStartTime { get; private set; }
 
         public string MediaChannelUrl { get; private set; }
 
