@@ -33,10 +33,9 @@ namespace MediaShareBot.Clients.Streamlabs {
                     });
 
                 JObject downloadedJson = JObject.Parse(await download);
-                string path = downloadedJson.Value<string>("path");
 
                 // Socket token
-                string token = Http.ParseUrlForParameter(path, "token");
+                string token = Http.ParseUrlForParameter(downloadedJson.Value<string>("path"), "token");
                 if (!string.IsNullOrEmpty(token)) {
                     _Client.Parameters = new Dictionary<string, string> {
                         { "token", token }
@@ -146,7 +145,7 @@ namespace MediaShareBot.Clients.Streamlabs {
         private static async Task ProcessEvent(string eventText) {
 
 #if DEBUG
-            Console.WriteLine($"==== {DateTime.Now.ToString(Constants.DateTimeFormatFull)}");
+            Console.WriteLine($"== {DateTime.Now.ToString(Constants.DateTimeFormatFull)}");
             Console.WriteLine(eventText);
             Console.WriteLine("====================");
 #endif

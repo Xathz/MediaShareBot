@@ -57,14 +57,18 @@ namespace MediaShareBot {
         public const string YouTubeLogoUrl = "https://cdn.discordapp.com/attachments/559869208976949278/622132923708997638/youtube.png";
 
         /// <summary>
-        /// Streamlabs brand color, used for Discord embeds.
+        /// Colors, used for Discord embeds.
         /// </summary>
         /// <remarks>
-        /// StreamElements #6A45AB (106, 69, 171)
-        ///     Streamlabs #31C3A2 (49, 195, 162)
-        ///        YouTube #FF0000 (255, 0, 0)
+        /// Media Share Bot #FF8447 (255, 132, 71)
+        ///  StreamElements #6A45AB (106, 69, 171)
+        ///      Streamlabs #31C3A2 (49, 195, 162)
+        ///         YouTube #FF0000 (255, 0, 0)
         /// </remarks>
+        public static (int R, int G, int B) MediaShareBotColor => (255, 132, 71);
+        public static (int R, int G, int B) StreamElementsColor => (106, 69, 171);
         public static (int R, int G, int B) StreamlabsColor => (49, 195, 162);
+        public static (int R, int G, int B) YouTubeColor => (255, 0, 0);
 
         /// <summary>
         /// Current process id.

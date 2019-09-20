@@ -18,7 +18,7 @@ namespace MediaShareBot.Clients.Discord.Commands {
             DateTime now = DateTime.Now.ToUniversalTime();
 
             return ReplyAsync($"{now.Subtract(Context.Message.CreatedAt.DateTime).TotalMilliseconds.ToString("N0")}ms" +
-                $"```Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormatFull)}" +
+                $"```{Environment.NewLine}Ping: {Context.Message.CreatedAt.DateTime.ToString(Constants.DateTimeFormatFull)}" +
                 $"{Environment.NewLine}" +
                 $"Pong: {now.ToString(Constants.DateTimeFormatFull)}```");
         }
@@ -52,7 +52,7 @@ namespace MediaShareBot.Clients.Discord.Commands {
             List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1990);
 
             foreach (string chunk in chunks) {
-                await ReplyAsync($"```{chunk.Replace("`", "'")}```");
+                await ReplyAsync($"```{Environment.NewLine}{chunk.Replace("`", "'")}```");
             }
         }
 
@@ -72,7 +72,7 @@ namespace MediaShareBot.Clients.Discord.Commands {
             List<string> chunks = builder.ToString().SplitIntoChunksPreserveNewLines(1990);
 
             foreach (string chunk in chunks) {
-                await ReplyAsync($"```{chunk.Replace("`", "'")}```");
+                await ReplyAsync($"```{Environment.NewLine}{chunk.Replace("`", "'")}```");
             }
         }
 

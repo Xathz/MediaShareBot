@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
@@ -22,8 +23,9 @@ namespace MediaShareBot.Utilities {
         /// <param name="headers">Headers for the request. (name, value)</param>
         /// <param name="parameters">Parameters for the request. (key, value)</param>
         /// <param name="method">Http method for the request.</param>
+        /// <param name="timeout">Timeout in seconds.</param>
         /// <returns>Response content as a string. This may be empty based on <see cref="Method"/>.</returns>
-        public static async Task<string> SendRequestAsync(string url, Dictionary<string, string> headers = null, Dictionary<string, string> parameters = null, Method method = Method.Get) {
+        public static async Task<string> SendRequestAsync(string url, Dictionary<string, string> headers = null, Dictionary<string, string> parameters = null, Method method = Method.Get, int timeout = 20) {
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(method.ToString()), url);
 
             if (headers != null) {
@@ -36,13 +38,15 @@ namespace MediaShareBot.Utilities {
                 request.Content = new FormUrlEncodedContent(parameters);
             }
 
-            using (HttpResponseMessage response = await Client.SendAsync(request)) {
-                if (response.IsSuccessStatusCode) {
-                    using (HttpContent content = response.Content) {
-                        return await content.ReadAsStringAsync();
+            using (CancellationTokenSource cancellation = new CancellationTokenSource(timeout * 1000)) {
+                using (HttpResponseMessage response = await Client.SendAsync(request, cancellation.Token)) {
+                    if (response.IsSuccessStatusCode) {
+                        using (HttpContent content = response.Content) {
+                            return await content.ReadAsStringAsync();
+                        }
+                    } else {
+                        throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
                     }
-                } else {
-                    throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
                 }
             }
         }
@@ -53,8 +57,9 @@ namespace MediaShareBot.Utilities {
         /// <param name="url">Url to download.</param>
         /// <param name="headers">Headers for the request. (name, value)</param>
         /// <param name="method">Http method for the request.</param>
+        /// <param name="timeout">Timeout in seconds.</param>
         /// <returns>The requested data as a <see cref="MemoryStream"/></returns>
-        public static async Task<MemoryStream> GetStreamAsync(string url, Dictionary<string, string> headers = null, Method method = Method.Get) {
+        public static async Task<MemoryStream> GetStreamAsync(string url, Dictionary<string, string> headers = null, Method method = Method.Get, int timeout = 20) {
             HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(method.ToString()), url);
 
             if (headers != null) {
@@ -63,19 +68,21 @@ namespace MediaShareBot.Utilities {
                 }
             }
 
-            using (HttpResponseMessage response = await Client.SendAsync(request)) {
-                if (response.IsSuccessStatusCode) {
-                    using (HttpContent content = response.Content) {
-                        using (Stream stream = await content.ReadAsStreamAsync()) {
-                            MemoryStream copyStream = new MemoryStream(256);
-                            stream.CopyTo(copyStream);
-                            copyStream.Seek(0, SeekOrigin.Begin);
+            using (CancellationTokenSource cancellation = new CancellationTokenSource(timeout * 1000)) {
+                using (HttpResponseMessage response = await Client.SendAsync(request, cancellation.Token)) {
+                    if (response.IsSuccessStatusCode) {
+                        using (HttpContent content = response.Content) {
+                            using (Stream stream = await content.ReadAsStreamAsync()) {
+                                MemoryStream copyStream = new MemoryStream(256);
+                                stream.CopyTo(copyStream);
+                                copyStream.Seek(0, SeekOrigin.Begin);
 
-                            return copyStream;
+                                return copyStream;
+                            }
                         }
+                    } else {
+                        throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
                     }
-                } else {
-                    throw new HttpRequestException($"There was an error; ({(int)response.StatusCode}) {response.ReasonPhrase}");
                 }
             }
         }

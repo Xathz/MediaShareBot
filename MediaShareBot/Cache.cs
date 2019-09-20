@@ -141,7 +141,7 @@ namespace MediaShareBot {
 
         private static async Task DownloadTopLevelDomainsAsync() {
             try {
-                Task<string> download = Http.SendRequestAsync("https://data.iana.org/TLD/tlds-alpha-by-domain.txt");
+                Task<string> download = Http.SendRequestAsync("https://data.iana.org/TLD/tlds-alpha-by-domain.txt", timeout: 5);
                 string data = await download;
 
                 if (download.IsCompletedSuccessfully) {

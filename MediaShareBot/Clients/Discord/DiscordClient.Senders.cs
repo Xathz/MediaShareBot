@@ -35,7 +35,7 @@ namespace MediaShareBot.Clients.Discord {
                 if (_DiscordClient.GetChannel(SettingsManager.Configuration.DiscordChannels.MediaShare) is IMessageChannel channel) {
 
                     EmbedBuilder builder = new EmbedBuilder() {
-                        Color = new Color(Constants.StreamlabsColor.R, Constants.StreamlabsColor.G, Constants.StreamlabsColor.B),
+                        Color = new Color(Constants.YouTubeColor.R, Constants.YouTubeColor.G, Constants.YouTubeColor.B),
                         ImageUrl = mediaThumbnailUrl,
                         Url = mediaUrl,
                         Title = mediaTitle

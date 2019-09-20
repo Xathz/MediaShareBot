@@ -8,12 +8,12 @@ namespace MediaShareBot.Clients.Streamlabs {
     public class EventValueParser {
 
         /// <summary>
-        /// Parse a Streamlabs event for values. All values are sanitized for markdown.
+        /// Parse a Streamlabs event for values.
         /// </summary>
         public EventValueParser(string eventText) {
             JObject eventObject = JObject.Parse(eventText);
 
-            // Event types
+            // Types
             EventType = ParseEventType(eventObject.Value<string>("type"));
             MediaShareType = ParseMediaShareType(eventObject.FindValueByKey<string>("event"));
             AlertPlayingType = ParseAlertPlayingType(eventObject.FindValueByKey<string>("action"));
@@ -54,7 +54,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
                 foreach (string key in keys) {
                     string value = eventObject.FindValueByKey<string>(key);
-                    if (!string.IsNullOrEmpty(value)) { AmountFormatted = value; }
+                    if (!string.IsNullOrEmpty(value)) { AmountFormatted = value; break; }
                 }
             }
 
@@ -69,7 +69,6 @@ namespace MediaShareBot.Clients.Streamlabs {
                     if (Cache.TwitchSubscriptionPlans.TryGetValue(value, out string result)) { SubscriptionPlan = result; }
                 }
             }
-
 
             { // Is the subscription a gift?
                 IsSubscriptionGift = (eventObject.FindValueByKey<string>("sub_type") == "subgift") ? true : false;
@@ -96,7 +95,9 @@ namespace MediaShareBot.Clients.Streamlabs {
             }
 
             { // Media start time
-                MediaStartTime = eventObject.FindValueByParentAndKey<string>("media", "start_time", "0");
+                string value = eventObject.FindValueByParentAndKey<string>("media", "start_time", "0");
+                if (int.TryParse(value, out int result)) { MediaStartTime = result; }
+
                 MediaUrl = $"https://www.youtube.com/watch?v={MediaId}&t={MediaStartTime}";
             }
 
@@ -145,6 +146,8 @@ namespace MediaShareBot.Clients.Streamlabs {
                 if (!string.IsNullOrEmpty(value)) { EventLogUnderscoreId = value; }
             }
 
+            RawJson = eventText;
+
         }
 
         public EventType EventType { get; private set; }
@@ -181,7 +184,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
         public int MediaViews { get; private set; }
 
-        public string MediaStartTime { get; private set; }
+        public int MediaStartTime { get; private set; }
 
         public string MediaChannelUrl { get; private set; }
 
@@ -194,6 +197,8 @@ namespace MediaShareBot.Clients.Streamlabs {
         public string EventLogId { get; private set; }
 
         public string EventLogUnderscoreId { get; private set; }
+
+        public string RawJson { get; private set; }
 
     }
 
