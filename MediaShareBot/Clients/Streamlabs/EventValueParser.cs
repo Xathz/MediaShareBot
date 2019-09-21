@@ -136,6 +136,11 @@ namespace MediaShareBot.Clients.Streamlabs {
                 }
             }
 
+            { // Raiders
+                string value = eventObject.FindValueByKey<string>("raiders", "0");
+                if (int.TryParse(value, out int result)) { Raiders = result; }
+            }
+
             { // Event log id
                 string value = eventObject.FindValueByKey<string>("id");
                 if (!string.IsNullOrEmpty(value)) { EventLogId = value; }
@@ -193,6 +198,8 @@ namespace MediaShareBot.Clients.Streamlabs {
         public string MediaChannelTitle { get; private set; }
 
         public string MediaThumbnailUrl { get; private set; }
+
+        public int Raiders { get; private set; }
 
         public string EventLogId { get; private set; }
 

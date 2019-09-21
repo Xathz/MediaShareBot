@@ -176,6 +176,12 @@ namespace MediaShareBot.Clients.Streamlabs {
                 } else if (parser.EventType == EventType.SubscriptionGift) {
                     await new SubscriptionGiftEvent(parser).Process();
 
+                } else if (parser.EventType == EventType.Follow) {
+                    await new FollowEvent(parser).Process();
+
+                } else if (parser.EventType == EventType.Raid) {
+                    await new RaidEvent(parser).Process();
+
                 }
 
             } catch (StreamlabsParseTypeException) { // Swallow

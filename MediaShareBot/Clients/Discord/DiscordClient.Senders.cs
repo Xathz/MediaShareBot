@@ -81,6 +81,34 @@ namespace MediaShareBot.Clients.Discord {
             }
         }
 
+        public static async Task SendFollowMessageAsync(string message) {
+            if (SettingsManager.Configuration.DiscordChannels.Follower == 0) { return; }
+            if (!SentMessagesCache.Add(message)) { return; }
+
+            try {
+                if (_DiscordClient.GetChannel(SettingsManager.Configuration.DiscordChannels.Follower) is IMessageChannel channel) {
+                    await channel.SendMessageAsync(message);
+                }
+
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
+        }
+
+        public static async Task SendRaidMessageAsync(string message) {
+            if (SettingsManager.Configuration.DiscordChannels.Raid == 0) { return; }
+            if (!SentMessagesCache.Add(message)) { return; }
+
+            try {
+                if (_DiscordClient.GetChannel(SettingsManager.Configuration.DiscordChannels.Raid) is IMessageChannel channel) {
+                    await channel.SendMessageAsync(message);
+                }
+
+            } catch (Exception ex) {
+                LoggingManager.Log.Error(ex);
+            }
+        }
+
     }
 
 }

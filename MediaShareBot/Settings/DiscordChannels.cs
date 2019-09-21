@@ -20,6 +20,18 @@
         /// </summary>
         public ulong SubsAndDonations { get; set; } = 0;
 
+        /// <summary>
+        /// Channel to send raid messages to.
+        /// Set to '0' to disable these messages.
+        /// </summary>
+        public ulong Raid { get; set; } = 0;
+
+        /// <summary>
+        /// Channel to send new follower messages to.
+        /// Set to '0' to disable these messages.
+        /// </summary>
+        public ulong Follower { get; set; } = 0;
+
     }
 
 }

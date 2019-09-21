@@ -48,6 +48,12 @@
         public int LargeSubMonthHolder { get; set; } = 12;
 
         /// <summary>
+        /// Threshold to consider a "large raid".
+        /// Threshold is equal to or greater than this value.
+        /// </summary>
+        public int LargeRaid { get; set; } = 40;
+
+        /// <summary>
         /// Discord channels
         /// </summary>
         public DiscordChannels DiscordChannels { get; set; } = new DiscordChannels();
