@@ -52,9 +52,14 @@ namespace MediaShareBot {
         public const long DiscordMaximumFileSize = 8388119;
 
         /// <summary>
-        /// YouTube logo url.
+        /// YouTube logo url, large.
         /// </summary>
         public const string YouTubeLogoUrl = "https://cdn.discordapp.com/attachments/559869208976949278/622132923708997638/youtube.png";
+
+        /// <summary>
+        /// YouTube logo url, small.
+        /// </summary>
+        public const string YouTubeLogoIconUrl = "https://cdn.discordapp.com/attachments/559869208976949278/624773952291602432/youtube_small.png";
 
         /// <summary>
         /// Colors, used for Discord embeds.

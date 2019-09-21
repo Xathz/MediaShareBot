@@ -42,11 +42,12 @@ namespace MediaShareBot.Clients.Discord {
                     };
 
                     builder.Author = new EmbedAuthorBuilder() {
+                        IconUrl = Constants.YouTubeLogoIconUrl,
                         Url = mediaChannelUrl,
                         Name = mediaChannelTitle
                     };
 
-                    builder.AddField("Donor / Amount", $"[{from}](https://www.twitch.tv/{from}, \"If people are allowed to enter any username when they donate, this Twitch link may not be accurate.{Environment.NewLine}" +
+                    builder.AddField("Donor / Amount", $"[{from}](https://www.twitch.tv/{from} \"If people are allowed to enter any username when they donate, this Twitch link may not be accurate.{Environment.NewLine}" +
                         $"Clicking this link will take you to: https://www.twitch.tv/{from}\") / {amount}", true);
 
                     builder.AddField("Views", mediaViews.ToString("N0", CultureInfo.InvariantCulture), true);
