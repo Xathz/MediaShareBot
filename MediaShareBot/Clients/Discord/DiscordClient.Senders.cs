@@ -26,7 +26,7 @@ namespace MediaShareBot.Clients.Discord {
         }
 
         public static async Task SendMediaShareMessageAsync(string from, string message, string amount, DateTime donatedAgo,
-            string mediaThumbnailUrl, string mediaUrl, int mediaViews, string mediaTitle, string mediaChannelUrl, string mediaChannelTitle) {
+            string mediaThumbnailUrl, string mediaUrl, ulong mediaViews, string mediaTitle, string mediaChannelUrl, string mediaChannelTitle) {
 
             if (SettingsManager.Configuration.DiscordChannels.MediaShare == 0) { return; }
             if (!SentMessagesCache.Add(from, message, amount)) { return; }

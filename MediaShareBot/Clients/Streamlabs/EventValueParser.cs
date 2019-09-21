@@ -13,11 +13,6 @@ namespace MediaShareBot.Clients.Streamlabs {
         public EventValueParser(string eventText) {
             JObject eventObject = JObject.Parse(eventText);
 
-            // Types
-            EventType = ParseEventType(eventObject.Value<string>("type"));
-            MediaShareType = ParseMediaShareType(eventObject.FindValueByKey<string>("event"));
-            AlertPlayingType = ParseAlertPlayingType(eventObject.FindValueByKey<string>("action"));
-
             { // Created at date time
                 string[] keys = new string[] { "createdAt", "created_at" };
 
@@ -26,6 +21,11 @@ namespace MediaShareBot.Clients.Streamlabs {
                     if (DateTime.TryParse(value, out DateTime result)) { DateTime = result; break; }
                 }
             }
+
+            // Types
+            EventType = ParseEventType(eventObject.Value<string>("type"));
+            MediaShareType = ParseMediaShareType(eventObject.FindValueByKey<string>("event"));
+            AlertPlayingType = ParseAlertPlayingType(eventObject.FindValueByKey<string>("action"));
 
             { // From user
                 string[] keys = new string[] { "from", "gifter_display_name", "gifter", "display_name", "name" };
@@ -49,6 +49,15 @@ namespace MediaShareBot.Clients.Streamlabs {
                 if (decimal.TryParse(value, out decimal result)) { Amount = result; }
             }
 
+            { // Currency
+                if (EventType == EventType.BitDonation) {
+                    Currency = "BITS";
+                } else {
+                    string value = eventObject.FindValueByKey<string>("currency");
+                    if (!string.IsNullOrEmpty(value)) { Currency = value; }
+                }
+            }
+
             { // Amount formatted
                 string[] keys = new string[] { "formattedAmount", "formatted_amount" };
 
@@ -68,6 +77,11 @@ namespace MediaShareBot.Clients.Streamlabs {
                 if (!string.IsNullOrEmpty(value)) {
                     if (Cache.TwitchSubscriptionPlans.TryGetValue(value, out string result)) { SubscriptionPlan = result; }
                 }
+            }
+
+            { // Raiders
+                string value = eventObject.FindValueByKey<string>("raiders", "0");
+                if (int.TryParse(value, out int result)) { Raiders = result; }
             }
 
             { // Is the subscription a gift?
@@ -91,7 +105,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
             { // Media views
                 string value = eventObject.FindValueByParentAndKey<string>("statistics", "viewCount", "0");
-                if (int.TryParse(value, out int result)) { MediaViews = result; }
+                if (ulong.TryParse(value, out ulong result)) { MediaViews = result; }
             }
 
             { // Media start time
@@ -136,11 +150,6 @@ namespace MediaShareBot.Clients.Streamlabs {
                 }
             }
 
-            { // Raiders
-                string value = eventObject.FindValueByKey<string>("raiders", "0");
-                if (int.TryParse(value, out int result)) { Raiders = result; }
-            }
-
             { // Event log id
                 string value = eventObject.FindValueByKey<string>("id");
                 if (!string.IsNullOrEmpty(value)) { EventLogId = value; }
@@ -155,13 +164,13 @@ namespace MediaShareBot.Clients.Streamlabs {
 
         }
 
+        public DateTime DateTime { get; private set; }
+
         public EventType EventType { get; private set; }
 
         public MediaShareType MediaShareType { get; private set; }
 
         public AlertPlayingType AlertPlayingType { get; private set; }
-
-        public DateTime DateTime { get; private set; }
 
         public string FromUser { get; private set; }
 
@@ -171,11 +180,15 @@ namespace MediaShareBot.Clients.Streamlabs {
 
         public decimal Amount { get; private set; }
 
+        public string Currency { get; private set; }
+
         public string AmountFormatted { get; private set; }
 
         public int Months { get; private set; }
 
         public string SubscriptionPlan { get; private set; }
+
+        public int Raiders { get; private set; }
 
         public bool IsSubscriptionGift { get; private set; }
 
@@ -187,7 +200,7 @@ namespace MediaShareBot.Clients.Streamlabs {
 
         public string MediaTitle { get; private set; }
 
-        public int MediaViews { get; private set; }
+        public ulong MediaViews { get; private set; }
 
         public int MediaStartTime { get; private set; }
 
@@ -198,8 +211,6 @@ namespace MediaShareBot.Clients.Streamlabs {
         public string MediaChannelTitle { get; private set; }
 
         public string MediaThumbnailUrl { get; private set; }
-
-        public int Raiders { get; private set; }
 
         public string EventLogId { get; private set; }
 
